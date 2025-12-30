@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Project</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .form-container { max-width: 600px; margin: 50px auto; padding: 20px; background: #0a0a0a; border: 1px solid #ff0000; }
+        textarea, select, input { width: 100%; padding: 10px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; color: white; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2 style="color:red">UPLOAD NEW PROJECT</h2>
+        <form action="/admin/upload" method="POST" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Nama Project" required>
+            <input type="text" name="language" placeholder="Bahasa Pemrograman (Contoh: Javascript, PHP)" required>
+            
+            <select name="type" id="typeSelect" onchange="toggleInput()">
+                <option value="file">Upload File</option>
+                <option value="code">Paste Code</option>
+            </select>
+
+            <div id="fileInput">
+                <label>Pilih File Project:</label>
+                <input type="file" name="projectFile">
+            </div>
+
+            <div id="codeInput" class="hidden">
+                <textarea name="projectCode" rows="10" placeholder="Paste code di sini..."></textarea>
+            </div>
+
+            <textarea name="note" placeholder="Catatan (Opsional)"></textarea>
+            
+            <label>Upload Gambar Preview:</label>
+            <input type="file" name="previewImg">
+
+            <button type="submit" class="btn-info">UPLOAD SEKARANG</button>
+        </form>
+        <br>
+        <a href="/admin/edit-profile" style="color:white">Edit Profile/Password</a>
+    </div>
+
+    <script>
+        function toggleInput() {
+            const type = document.getElementById('typeSelect').value;
+            document.getElementById('fileInput').classList.toggle('hidden', type === 'code');
+            document.getElementById('codeInput').classList.toggle('hidden', type === 'file');
+        }
+    </script>
+</body>
+</html>
