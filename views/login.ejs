@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .login-box { 
+            width: 300px; margin: 100px auto; background: #0a0a0a; 
+            padding: 40px; border: 2px solid #ff0000; border-radius: 15px;
+        }
+        input { 
+            width: 100%; padding: 10px; margin: 10px 0; 
+            background: #1a1a1a; border: 1px solid #333; color: white; 
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2 style="text-align:center; color:red;">LOGIN ADMIN</h2>
+        <form action="/login" method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit" class="btn-info" style="width: 100%;">MASUK</button>
+        </form>
+    </div>
+</body>
+</html>
