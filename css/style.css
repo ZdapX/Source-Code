@@ -1,0 +1,191 @@
+:root {
+    --bg: #000000;
+    --primary: #FF0000;
+    --secondary: #121212;
+    --card-bg: #0A0A0A;
+    --text-main: #FFFFFF;
+    --text-dim: #A0A0A0;
+    --border-color: #333333;
+    --font-pixel: 'Press Start 2P', cursive;
+    --font-main: 'Roboto', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Header & Logo */
+header {
+    background: var(--bg);
+    border-bottom: 4px solid var(--primary);
+    padding: 2rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-family: var(--font-pixel);
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Modern Buttons */
+.btn-modern {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-family: var(--font-pixel);
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-modern:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 4px 4px 0px white;
+}
+
+.btn-modern:active {
+    transform: translate(0, 0);
+    box-shadow: none;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+/* Search Bar */
+.search-container {
+    padding: 40px 5%;
+    text-align: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 800px;
+    background: var(--secondary);
+    border: 2px solid var(--border-color);
+    padding: 20px;
+    color: white;
+    font-size: 1.1rem;
+    font-family: var(--font-main);
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.search-input:focus {
+    border-color: var(--primary);
+}
+
+/* Project Cards */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    padding: 0 5% 50px 5%;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 30px;
+    position: relative;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {
+    border-color: var(--primary);
+    background: #0D0D0D;
+}
+
+.card-title {
+    font-family: var(--font-main);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.card-lang {
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    color: var(--primary);
+    margin-bottom: 20px;
+    display: block;
+}
+
+.card-stats {
+    display: flex;
+    gap: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+}
+
+.stat-item b { color: var(--primary); }
+
+/* Code Block Modern */
+.code-wrapper {
+    background: #050505;
+    border: 1px solid var(--primary);
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    color: #00FF41; /* Matrix Green effect for code */
+    margin: 20px 0;
+}
+
+/* Chat Bubbles */
+.chat-window {
+    height: 60vh;
+    border: 2px solid var(--border-color);
+    background: var(--secondary);
+    display: flex;
+    flex-direction: column;
+}
+
+.msg {
+    max-width: 80%;
+    padding: 15px;
+    margin: 10px;
+    font-size: 0.95rem;
+}
+
+.msg.me {
+    align-self: flex-end;
+    background: var(--primary);
+    color: white;
+    border-radius: 15px 15px 0 15px;
+}
+
+.msg.other {
+    align-self: flex-start;
+    background: #222;
+    color: white;
+    border-radius: 15px 15px 15px 0;
+}
