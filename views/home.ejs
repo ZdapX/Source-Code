@@ -1,31 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Website Source Code</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOURCE CODE - Repository</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <header>
-        <div class="header-title">&lt;/&gt; Source Code</div>
-        <button class="btn-info" onclick="location.href='/profile'">info👑</button>
+        <div class="logo">&lt;/&gt; SOURCE CODE</div>
+        <a href="/profile" class="btn-modern">INFO 👑</a>
     </header>
 
-    <form action="/" method="GET" style="text-align:center;">
-        <input type="text" name="search" class="search-bar" placeholder="Cari projek...">
-    </form>
-
-    <div class="container">
-        <% projects.forEach(p => { %>
-            <div class="project-card" onclick="location.href='/project/<%= p._id %>'">
-                <div>
-                    <h3><%= p.name %></h3>
-                    <p style="color:red; font-size:0.8rem;"><%= p.language %> | By: <%= p.uploadedBy %></p>
-                </div>
-                <div class="stat-box">❤️ <%= p.likes %> | 📥 <%= p.downloads %></div>
-            </div>
-        <% }) %>
+    <div class="search-container">
+        <form action="/" method="GET">
+            <input type="text" name="search" class="search-input" placeholder="SEARCH PROJECTS_">
+        </form>
     </div>
 
-    <button class="btn-info" style="position:fixed; bottom:20px; right:20px; border-radius:50px; padding:15px 25px;" onclick="location.href='/chat-pilih'">💬 CHAT ADMIN</button>
+    <main class="grid">
+        <% projects.forEach(p => { %>
+        <div class="card" onclick="location.href='/project/<%= p._id %>'" style="cursor: pointer;">
+            <div>
+                <span class="card-lang"><%= p.language %></span>
+                <h2 class="card-title"><%= p.name %></h2>
+                <p style="color: var(--text-dim); font-size: 0.8rem;">By: <%= p.uploadedBy %></p>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item">❤️ <b><%= p.likes %></b></div>
+                <div class="stat-item">📥 <b><%= p.downloads %></b></div>
+            </div>
+        </div>
+        <% }) %>
+    </main>
+
+    <div style="position: fixed; bottom: 30px; right: 30px;">
+        <a href="/chat-pilih" class="btn-modern" style="border-radius: 0; box-shadow: 6px 6px 0 white;">💬 CHAT_ADMIN</a>
+    </div>
 </body>
 </html>
