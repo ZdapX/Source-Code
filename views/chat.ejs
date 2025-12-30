@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Chat Admin</title>
+</head>
+<body>
+    <header><div class="brand">HUBUNGI ADMIN</div></header>
+
+    <div class="container" style="max-width: 600px; margin: 20px auto;">
+        <div id="userTag" style="text-align: center; color: #888; margin-bottom: 20px;"></div>
+
+        <!-- Chat Card SilverHold -->
+        <div class="project-card" style="cursor: default;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="https://via.placeholder.com/50" style="border-radius: 50%; border: 2px solid #FF0000;">
+                <div>
+                    <h3 style="margin: 0;">SilverHold Official</h3>
+                    <small style="color: #00ff00;">● Online (Admin)</small>
+                </div>
+            </div>
+            <button class="btn-info" onclick="alert('Menuju WhatsApp/Telegram Admin...')">CHAT ADMIN</button>
+        </div>
+
+        <!-- Chat Card Brayn -->
+        <div class="project-card" style="cursor: default; margin-top: 20px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="https://via.placeholder.com/50" style="border-radius: 50%; border: 2px solid #FF0000;">
+                <div>
+                    <h3 style="margin: 0;">Brayn Official</h3>
+                    <small style="color: #00ff00;">● Online (Owner)</small>
+                </div>
+            </div>
+            <button class="btn-info" onclick="alert('Menuju WhatsApp/Telegram Owner...')">CHAT OWNER</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('userTag').innerText = "Logged in as: " + localStorage.getItem('username');
+    </script>
+</body>
+</html>
