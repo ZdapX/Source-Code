@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Projects</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .manage-card { 
+            background: #0a0a0a; border: 1px solid #333; padding: 15px; 
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-del { background: #ff0000; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 0.8rem; }
+    </style>
+</head>
+<body style="background:#000; color:#fff; font-family: sans-serif;">
+    <div style="max-width: 800px; margin: 40px auto; padding: 20px;">
+        <h2 style="color:#ff0000; border-bottom: 2px solid #ff0000; padding-bottom: 10px;">MANAJEMEN PROJEK: <%= adminName %></h2>
+        <a href="/admin/upload" style="color:#666; text-decoration:none;">+ Upload Projek Baru</a>
+        <br><br>
+        
+        <% projects.forEach(p => { %>
+            <div class="manage-card">
+                <div>
+                    <h3 style="margin:0;"><%= p.name %></h3>
+                    <small style="color:#ff0000;"><%= p.language %> | ❤️ <%= p.likes %> | 📥 <%= p.downloads %></small>
+                </div>
+                <div>
+                    <a href="/admin/delete/<%= p._id %>" class="btn-del" onclick="return confirm('Hapus projek ini?')">HAPUS</a>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</body>
+</html>
