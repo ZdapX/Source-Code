@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Source Code</title>
+</head>
+<body>
+    <header>
+        <div class="brand"></> Source Code</div>
+        <button class="btn-info" onclick="location.href='/profile'">info👑</button>
+    </header>
+
+    <form action="/" method="GET">
+        <input type="text" name="search" class="search-bar" placeholder="Cari nama projek...">
+    </form>
+
+    <div class="container">
+        <% projects.forEach(p => { %>
+            <div class="project-card" onclick="location.href='/project/<%= p._id %>'">
+                <div>
+                    <h3><%= p.name %></h3>
+                    <p style="color: #FF0000;"><%= p.language %></p>
+                </div>
+                <div style="text-align: right;">
+                    <span>❤️ <%= p.likes %></span> | <span>📥 <%= p.downloads %></span>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+
+    <div style="text-align: center; margin: 50px;">
+        <button class="btn-info" onclick="location.href='/chat'">CHAT ADMIN</button>
+    </div>
+</body>
+</html>
