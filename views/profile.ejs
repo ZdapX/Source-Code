@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Admin - Source Code</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .profile-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 50px 20px; }
+        .admin-card { 
+            background: #0a0a0a; border: 2px solid #ff0000; padding: 30px; 
+            width: 350px; text-align: center; border-radius: 20px;
+        }
+        .profile-img { 
+            width: 120px; height: 120px; border-radius: 50%; border: 3px solid #ff0000; 
+            object-fit: cover; margin-bottom: 15px; background: #1a1a1a;
+        }
+        .quote { color: #ccc; font-style: italic; margin: 15px 0; font-size: 0.9rem; }
+        .hashtag { color: #ff0000; font-weight: bold; font-size: 0.8rem; }
+        .back-btn { display: block; width: fit-content; margin: 20px auto; color: white; text-decoration: none; border-bottom: 1px solid red; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">ADMIN PROFILES</div>
+    </header>
+
+    <div class="profile-container">
+        <% admins.forEach(admin => { %>
+        <div class="admin-card">
+            <img src="<%= admin.profilePic || 'https://via.placeholder.com/150' %>" class="profile-img">
+            <h2 style="color: #ff0000;"><%= admin.name %></h2>
+            <p class="quote">"<%= admin.quote %>"</p>
+            <p class="hashtag"><%= admin.hashtag %></p>
+        </div>
+        <% }) %>
+    </div>
+
+    <a href="/" class="back-btn">Kembali ke Home</a>
+</body>
+</html>
