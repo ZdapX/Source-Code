@@ -1,24 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Pilih Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SELECT_TARGET | Secure Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        .pilih-box { max-width: 500px; margin: 100px auto; text-align: center; }
-        .admin-opt { 
-            background: #0a0a0a; border: 2px solid #ff0000; padding: 20px; 
-            margin: 15px; border-radius: 10px; cursor: pointer; transition: 0.3s;
+        .pilih-container {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
         }
-        .admin-opt:hover { background: #ff0000; }
-        .admin-opt a { color: white; text-decoration: none; font-weight: bold; font-size: 1.2rem; display: block; }
+        .options-grid {
+            display: flex;
+            gap: 30px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .option-box {
+            width: 300px;
+            padding: 40px;
+            background: #111;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        .option-box:hover {
+            border-color: #FF0000;
+            transform: translateY(-10px);
+            background: #000;
+            box-shadow: 0 20px 0 -10px #FF0000;
+        }
+        .option-box h3 {
+            font-family: 'Press Start 2P';
+            font-size: 0.8rem;
+            color: #FFF;
+            margin-top: 20px;
+        }
+        .option-box:hover h3 {
+            color: #FF0000;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #FF0000;
+            display: inline-block;
+            margin-right: 10px;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
-    <div class="pilih-box">
-        <h2 style="color:red;">PILIH ADMIN UNTUK CHAT</h2>
-        <div class="admin-opt"><a href="/chat/Silverhold">CHAT DENGAN SILVERHOLD</a></div>
-        <div class="admin-opt"><a href="/chat/BraynOfficial">CHAT DENGAN BRAYN OFFICIAL</a></div>
-        <a href="/" style="color:#666; text-decoration:none;">Kembali ke Home</a>
+    <header>
+        <div class="logo">CHAT_SELECTION</div>
+        <a href="/" class="btn-modern btn-outline">CANCEL</a>
+    </header>
+
+    <div class="pilih-container">
+        <h1 style="font-family: 'Press Start 2P'; font-size: 1.2rem;">
+            <span class="status-dot"></span>PILIH_TARGET_ADMIN_
+        </h1>
+        
+        <div class="options-grid">
+            <!-- Target: SilverHold -->
+            <a href="/chat/Silverhold" class="option-box">
+                <div style="font-size: 3rem;">🛡️</div>
+                <h3>SILVERHOLD_OFFICIAL</h3>
+                <p style="color: #666; font-size: 0.8rem; margin-top: 10px;">Religion & Wisdom</p>
+            </a>
+
+            <!-- Target: BraynOfficial -->
+            <a href="/chat/BraynOfficial" class="option-box">
+                <div style="font-size: 3rem;">💻</div>
+                <h3>BRAYN_OFFICIAL</h3>
+                <p style="color: #666; font-size: 0.8rem; margin-top: 10px;">Development & Tech</p>
+            </a>
+        </div>
     </div>
 </body>
 </html>
