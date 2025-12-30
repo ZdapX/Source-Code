@@ -10,8 +10,8 @@ const ProjectSchema = new mongoose.Schema({
     preview: { type: String, default: '' },
     likes: { type: Number, default: 0 },
     downloads: { type: Number, default: 0 },
+    uploadedBy: { type: String, required: true }, // 'Silverhold' atau 'BraynOfficial'
     createdAt: { type: Date, default: Date.now }
 });
 
-// Cek apakah model sudah ada, jika belum baru buat (Penting untuk Vercel)
 module.exports = mongoose.models.Project || mongoose.model('Project', ProjectSchema);
