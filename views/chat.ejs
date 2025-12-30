@@ -1,58 +1,63 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Chat with <%= adminTarget %></title>
+    <meta charset="UTF-8">
+    <title>Secure Chat | <%= adminTarget %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <script src="/socket.io/socket.io.js"></script>
-    <style>
-        .msg { margin: 10px; padding: 10px; border-radius: 10px; max-width: 70%; }
-        .me { align-self: flex-end; background: red; color: white; }
-        .other { align-self: flex-start; background: #333; color: white; }
-    </style>
 </head>
-<body style="background:#000; color:white;">
-    <div style="max-width:600px; margin:auto; height:100vh; display:flex; flex-direction:column; border:1px solid red;">
-        <div style="background:#111; padding:20px; text-align:center; border-bottom:2px solid red;">
-            CHAT DENGAN: <span style="color:red; font-weight:bold;"><%= adminTarget %></span>
+<body>
+    <div style="max-height: 100vh; display: flex; flex-direction: column; height: 100vh;">
+        <div style="padding: 30px; background: var(--secondary); border-bottom: 4px solid var(--primary); text-align: center;">
+            <h2 style="font-family: var(--font-pixel); font-size: 0.9rem;">
+                SECURE_CONNECTION: <span style="color: var(--primary);"><%= adminTarget %></span>
+            </h2>
         </div>
-        <div id="msgs" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; padding:10px;">
+
+        <div id="chat-box" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; background: var(--bg);">
             <% history.forEach(m => { %>
-                <div class="msg <%= (m.isAdmin && sessionUser === adminTarget) || (!m.isAdmin && m.user.startsWith('USER')) ? 'me' : 'other' %>">
-                    <small><%= m.user %></small><br><%= m.text %>
+                <div class="msg <%= (m.user === adminTarget || m.isAdmin) ? 'other' : 'me' %>">
+                    <small style="display:block; font-family: var(--font-pixel); font-size: 0.5rem; margin-bottom: 5px;">
+                        <%= m.user %>
+                    </small>
+                    <%= m.text %>
                 </div>
             <% }) %>
         </div>
-        <div style="padding:10px; display:flex; background:#111;">
-            <input id="i" placeholder="Tulis pesan..." style="flex:1; padding:10px; background:#000; color:white; border:1px solid red;">
-            <button onclick="send()" class="btn-info">KIRIM</button>
+
+        <div style="padding: 20px; background: var(--secondary); display: flex; gap: 10px;">
+            <input id="m-input" style="flex: 1; background: #000; border: 2px solid var(--border-color); color: white; padding: 15px; outline: none;" placeholder="Enter message_">
+            <button onclick="send()" class="btn-modern">SEND</button>
         </div>
     </div>
+
     <script>
         const socket = io();
-        const adminTarget = "<%= adminTarget %>";
+        const target = "<%= adminTarget %>";
         const sessionUser = "<%= sessionUser %>";
-        const userId = sessionUser === adminTarget ? adminTarget : "USER_" + Math.floor(Math.random()*999);
+        const myName = sessionUser === target ? target : "USER_" + Math.floor(Math.random()*9999);
 
-        function send(){
-            const i = document.getElementById('i');
-            if(!i.value) return;
+        function send() {
+            const input = document.getElementById('m-input');
+            if(!input.value) return;
             socket.emit('chat message', {
-                user: userId,
-                text: i.value,
-                to: adminTarget,
-                isAdmin: userId === adminTarget
+                user: myName,
+                text: input.value,
+                to: target,
+                isAdmin: myName === target
             });
-            i.value = '';
+            input.value = '';
         }
 
-        socket.on('chat message', (m) => {
-            if(m.to === adminTarget){
+        socket.on('chat message', (data) => {
+            if(data.to === target) {
+                const box = document.getElementById('chat-box');
                 const div = document.createElement('div');
-                div.className = "msg " + (m.user === userId ? "me" : "other");
-                div.innerHTML = `<small>${m.user}</small><br>${m.text}`;
-                document.getElementById('msgs').appendChild(div);
-                document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+                div.className = `msg ${data.user === myName ? 'me' : 'other'}`;
+                div.innerHTML = `<small style="display:block; font-family: var(--font-pixel); font-size: 0.5rem; margin-bottom: 5px;">${data.user}</small>${data.text}`;
+                box.appendChild(div);
+                box.scrollTop = box.scrollHeight;
             }
         });
     </script>
