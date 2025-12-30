@@ -17,7 +17,7 @@ cloudinary.config({
 });
 
 // Setup Database (Ganti URL ini dengan MongoDB Atlas-mu)
-const MONGODB_URI = "ISI_DENGAN_URL_MONGODB_KAMU"; 
+const MONGODB_URI = "mongodb+srv://braynofficial66_db_user:Oh2ivMc2GGP0SbJF@cluster0.zi2ra3a.mongodb.net/?appName=Cluster0"; 
 mongoose.connect(MONGODB_URI).then(() => console.log("DB Connected"));
 
 // Schema Database
