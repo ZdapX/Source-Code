@@ -27,19 +27,22 @@ cloudinary.config({
   api_secret: 'N9U1eFJGKjJ-A8Eo4BTtSCl720c'
 });
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-      console.log("MongoDB Connected...");
-      seedAdmins(); // Inisialisasi admin saat pertama kali jalan
-  })
-  .catch(err => console.log(err));
+mongoose.connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => {
+    console.log("MongoDB Connected...");
+    seedAdmins();
+})
+.catch(err => console.log("MongoDB Error: ", err));
 
-// --- KONFIGURASI STORAGE ---
+// --- KONFIGURASI STORAGE (AUTO RESOURCE TYPE AGAR BISA ZIP/RAR/CODE) ---
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'website_source_code',
-    resource_type: 'auto'
+    resource_type: 'auto', // Penting agar bisa upload file non-gambar (zip, rar, txt)
   },
 });
 const upload = multer({ storage: storage });
@@ -57,31 +60,32 @@ app.use(session({
 
 // Fungsi Inisialisasi Admin Default
 async function seedAdmins() {
-    const count = await Admin.countDocuments();
-    if (count === 0) {
-        await Admin.create([
-            { 
-                username: 'Silverhold', 
-                pass: 'Rian', 
-                name: 'SilverHold Official', 
-                quote: 'Jangan lupa sholat walaupun kamu seorang pendosa allah lebih suka orang pendosa yang sering bertaubat dari pada orang yang merasa suci', 
-                hashtag: '#bismillahcalonustad', 
-                profilePic: '' 
-            },
-            { 
-                username: 'BraynOfficial', 
-                pass: 'Plerr321', 
-                name: 'Brayn Official', 
-                quote: 'Tidak Semua Orang Suka Kita Berkembang Pesat!', 
-                hashtag: '#backenddev #frontenddev #BraynOfficial', 
-                profilePic: '' 
-            }
-        ]);
-        console.log("Admins Seeded!");
-    }
+    try {
+        const count = await Admin.countDocuments();
+        if (count === 0) {
+            await Admin.create([
+                { 
+                    username: 'Silverhold', 
+                    pass: 'Rian', 
+                    name: 'SilverHold Official', 
+                    quote: 'Jangan lupa sholat walaupun kamu seorang pendosa...', 
+                    hashtag: '#bismillahcalonustad', 
+                    profilePic: '' 
+                },
+                { 
+                    username: 'BraynOfficial', 
+                    pass: 'Plerr321', 
+                    name: 'Brayn Official', 
+                    quote: 'Tidak Semua Orang Suka Kita Berkembang Pesat!', 
+                    hashtag: '#backenddev #frontenddev', 
+                    profilePic: '' 
+                }
+            ]);
+            console.log("Admins Seeded!");
+        }
+    } catch (e) { console.log(e); }
 }
 
-// Middleware Cek Login
 const isAdmin = (req, res, next) => {
     if (req.session.adminId) return next();
     res.redirect('/login');
@@ -89,7 +93,6 @@ const isAdmin = (req, res, next) => {
 
 // --- ROUTES ---
 
-// 1. Home - List Project & Search
 app.get('/', async (req, res) => {
     const { search } = req.query;
     let query = {};
@@ -100,19 +103,16 @@ app.get('/', async (req, res) => {
     res.render('home', { projects });
 });
 
-// 2. Profile Admin
 app.get('/profile', async (req, res) => {
     const admins = await Admin.find();
     res.render('profile', { admins });
 });
 
-// 3. Project Detail
 app.get('/project/:id', async (req, res) => {
     const project = await Project.findById(req.params.id);
     res.render('project-detail', { project });
 });
 
-// 4. Like & Download Counter (API)
 app.post('/project/:id/like', async (req, res) => {
     await Project.findByIdAndUpdate(req.params.id, { $inc: { likes: 1 } });
     res.redirect('back');
@@ -120,44 +120,55 @@ app.post('/project/:id/like', async (req, res) => {
 
 app.get('/project/:id/download-hit', async (req, res) => {
     const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } });
-    res.redirect(project.content); // Redirect ke file asli atau tampilkan sukses
+    res.redirect(project.content);
 });
 
-// 5. Login
 app.get('/login', (req, res) => res.render('login'));
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const admin = await Admin.findOne({ username, pass: password });
     if (admin) {
         req.session.adminId = admin._id;
-        req.session.username = admin.username;
         res.redirect('/admin/upload');
     } else {
         res.send("<script>alert('Login Gagal!'); window.location='/login';</script>");
     }
 });
 
-// 6. Admin Upload
+// --- ROUTE UPLOAD (FIXED LOGIC) ---
 app.get('/admin/upload', isAdmin, (req, res) => res.render('admin-upload'));
+
 app.post('/admin/upload', isAdmin, upload.fields([{ name: 'projectFile' }, { name: 'previewImg' }]), async (req, res) => {
-    const { name, language, type, projectCode, note } = req.body;
-    
-    let content = "";
-    if (type === 'file') {
-        content = req.files['projectFile'] ? req.files['projectFile'][0].path : "";
-    } else {
-        content = projectCode;
+    try {
+        const { name, language, type, projectCode, note } = req.body;
+        let content = "";
+
+        if (type === 'file') {
+            if (req.files && req.files['projectFile']) {
+                content = req.files['projectFile'][0].path;
+            }
+        } else {
+            content = projectCode;
+        }
+
+        // Cek agar tidak error "content is required"
+        if (!content || content.trim() === "") {
+            return res.send("<script>alert('Error: File belum dipilih atau Code masih kosong!'); window.history.back();</script>");
+        }
+
+        let preview = "";
+        if (req.files && req.files['previewImg']) {
+            preview = req.files['previewImg'][0].path;
+        }
+
+        await Project.create({ name, language, type, content, note, preview });
+        res.redirect('/');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Upload Gagal: " + err.message);
     }
-
-    const preview = req.files['previewImg'] ? req.files['previewImg'][0].path : "";
-
-    await Project.create({
-        name, language, type, content, note, preview
-    });
-    res.redirect('/');
 });
 
-// 7. Admin Edit Profile
 app.get('/admin/edit-profile', isAdmin, async (req, res) => {
     const admin = await Admin.findById(req.session.adminId);
     res.render('admin-edit', { admin });
@@ -166,53 +177,32 @@ app.get('/admin/edit-profile', isAdmin, async (req, res) => {
 app.post('/admin/edit-profile', isAdmin, upload.single('profilePic'), async (req, res) => {
     const { name, quote, hashtag, oldPassword, newPassword } = req.body;
     const admin = await Admin.findById(req.session.adminId);
-
     let updateData = { name, quote, hashtag };
-    
     if (req.file) updateData.profilePic = req.file.path;
-    
-    if (oldPassword && newPassword) {
-        if (admin.pass === oldPassword) {
-            updateData.pass = newPassword;
-        } else {
-            return res.send("<script>alert('Password lama salah!'); window.history.back();</script>");
-        }
+    if (oldPassword && newPassword && admin.pass === oldPassword) {
+        updateData.pass = newPassword;
     }
-
     await Admin.findByIdAndUpdate(req.session.adminId, updateData);
     res.redirect('/profile');
 });
 
-// 8. Chat Room
 app.get('/chat', async (req, res) => {
     const history = await Message.find().sort({ timestamp: 1 }).limit(50);
     res.render('chat', { history });
 });
 
-// 9. Logout
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
-
-// --- SOCKET.IO REALTIME CHAT ---
 io.on('connection', (socket) => {
     socket.on('chat message', async (data) => {
-        // Simpan ke DB
         const newMessage = await Message.create({
             user: data.user,
             text: data.msg,
             isAdmin: data.isAdmin || false
         });
-        // Broadcast ke semua orang
         io.emit('chat message', newMessage);
     });
 });
 
-// --- START SERVER ---
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Running on port ${PORT}`));
 
 module.exports = app;
