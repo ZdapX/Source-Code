@@ -1,98 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Project - Admin</title>
+    <title>Upload Project</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .form-container { 
-            max-width: 600px; margin: 40px auto; padding: 30px; 
-            background: #0a0a0a; border: 2px solid #ff0000; border-radius: 15px; 
-        }
-        h2 { color: #ff0000; text-align: center; margin-bottom: 25px; text-transform: uppercase; }
-        label { display: block; margin-top: 15px; color: #ccc; font-size: 0.9rem; }
-        input, textarea, select { 
-            width: 100%; padding: 12px; margin-top: 5px; 
-            background: #1a1a1a; border: 1px solid #333; color: white; 
-            border-radius: 5px; box-sizing: border-box;
-        }
-        input:focus, textarea:focus { border-color: #ff0000; outline: none; }
-        .hidden { display: none; }
-        .btn-upload { 
-            width: 100%; background: #ff0000; color: white; border: none; 
-            padding: 15px; margin-top: 25px; font-weight: bold; cursor: pointer; 
-            border-radius: 5px; transition: 0.3s;
-        }
-        .btn-upload:hover { background: #cc0000; }
-        .back-link { display: block; text-align: center; margin-top: 15px; color: #666; text-decoration: none; }
-    </style>
 </head>
-<body>
-    <div class="form-container">
-        <h2>🚀 Upload Project</h2>
-        
-        <!-- PENTING: enctype harus multipart/form-data -->
+<body style="background:#000; color:#fff;">
+    <div class="form-container" style="max-width:600px; margin:50px auto; border:2px solid red; padding:20px;">
+        <div style="display:flex; justify-content: space-between; margin-bottom:20px;">
+            <a href="/admin/edit-profile" style="color:white; font-size:0.8rem;">⚙️ EDIT PROFILE</a>
+            <a href="/admin/manage" style="color:red; font-size:0.8rem; font-weight:bold;">📂 MANAGE PROJEK SAYA</a>
+        </div>
+        <h2 style="color:red; text-align:center;">UPLOAD PROJEK</h2>
         <form action="/admin/upload" method="POST" enctype="multipart/form-data">
-            
-            <label>Nama Project</label>
-            <input type="text" name="name" placeholder="Contoh: Website E-Commerce" required>
-
-            <label>Bahasa Pemrograman</label>
-            <input type="text" name="language" placeholder="Contoh: Javascript, PHP, Python" required>
-
-            <label>Pilih Tipe Source Code</label>
-            <select name="type" id="typeSelect" onchange="toggleInput()">
-                <option value="file">Upload File (Zip/Rar)</option>
-                <option value="code">Paste Code (Teks)</option>
+            <input type="text" name="name" placeholder="Nama Projek" required class="search-bar" style="width:100%; margin:10px 0;">
+            <input type="text" name="language" placeholder="Bahasa Pemrograman" required class="search-bar" style="width:100%; margin:10px 0;">
+            <select name="type" id="t" onchange="toggle()" class="search-bar" style="width:100%; margin:10px 0; background:#111; color:#fff;">
+                <option value="file">Upload File</option>
+                <option value="code">Paste Code</option>
             </select>
-
-            <!-- Bagian Upload File -->
-            <div id="fileInputGroup">
-                <label>Pilih File Project (.zip, .rar, .txt)</label>
-                <input type="file" name="projectFile" id="fileField">
-            </div>
-
-            <!-- Bagian Paste Code -->
-            <div id="codeInputGroup" class="hidden">
-                <label>Paste Source Code Kamu</label>
-                <textarea name="projectCode" id="codeField" rows="10" placeholder="Paste kode di sini..."></textarea>
-            </div>
-
-            <label>Catatan Project (Opsional)</label>
-            <textarea name="note" rows="3" placeholder="Tambahkan instruksi atau fitur..."></textarea>
-            
-            <label>Gambar Preview (Opsional)</label>
-            <input type="file" name="previewImg" accept="image/*">
-
-            <button type="submit" class="btn-upload">PUBLIKASIKAN PROJEK</button>
+            <div id="f"><input type="file" name="projectFile" style="margin:10px 0;"></div>
+            <div id="c" style="display:none;"><textarea name="projectCode" rows="10" placeholder="Paste code di sini..." class="search-bar" style="width:100%;"></textarea></div>
+            <textarea name="note" placeholder="Catatan (Opsional)" class="search-bar" style="width:100%; margin:10px 0;"></textarea>
+            <label>Preview Image:</label><br>
+            <input type="file" name="previewImg" style="margin:10px 0;">
+            <button type="submit" class="btn-info" style="width:100%; margin-top:20px;">UPLOAD</button>
         </form>
-
-        <a href="/" class="back-link">Kembali ke Home</a>
     </div>
-
     <script>
-        function toggleInput() {
-            const type = document.getElementById('typeSelect').value;
-            const fileGroup = document.getElementById('fileInputGroup');
-            const codeGroup = document.getElementById('codeInputGroup');
-            const fileField = document.getElementById('fileField');
-            const codeField = document.getElementById('codeField');
-
-            if (type === 'file') {
-                fileGroup.classList.remove('hidden');
-                codeGroup.classList.add('hidden');
-                fileField.setAttribute('required', 'required');
-                codeField.removeAttribute('required');
-            } else {
-                fileGroup.classList.add('hidden');
-                codeGroup.classList.remove('hidden');
-                codeField.setAttribute('required', 'required');
-                fileField.removeAttribute('required');
-            }
+        function toggle(){
+            let v = document.getElementById('t').value;
+            document.getElementById('f').style.display = v==='file'?'block':'none';
+            document.getElementById('c').style.display = v==='code'?'block':'none';
         }
-        // Jalankan sekali saat load agar atribut required sesuai default
-        window.onload = toggleInput;
     </script>
 </body>
 </html>
