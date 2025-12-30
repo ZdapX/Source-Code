@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Profile Admin</title>
+</head>
+<body>
+    <header>
+        <div class="brand" onclick="location.href='/'" style="cursor:pointer"><] Back</div>
+    </header>
+
+    <div class="container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px;">
+        <% admins.forEach(admin => { %>
+            <div class="admin-card">
+                <img src="<%= admin.image || 'https://via.placeholder.com/100' %>" alt="Profile">
+                <h2 style="color: #FF0000; margin: 10px 0;"><%= admin.name %></h2>
+                <p style="font-style: italic; font-size: 0.9rem; margin-bottom: 15px;">"<%= admin.quote %>"</p>
+                <p style="color: #888; font-size: 0.8rem;"><%= admin.tags %></p>
+                <% if (typeof session !== 'undefined' && session.adminId) { %>
+                    <button class="btn-info" style="width: 100%; margin-top: 10px;">Edit Profile</button>
+                <% } %>
+            </div>
+        <% }) %>
+    </div>
+</body>
+</html>
