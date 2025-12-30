@@ -1,36 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Upload Project</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLOAD_HUB | Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            max-width: 800px;
+            margin: 40px auto 0;
+            padding: 0 20px;
+        }
+        .nav-btn {
+            background: #111;
+            color: white;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P';
+            font-size: 0.55rem;
+            text-decoration: none;
+            border: 1px solid #333;
+            transition: 0.2s;
+        }
+        .nav-btn:hover {
+            border-color: #FF0000;
+            color: #FF0000;
+        }
+        .upload-card {
+            max-width: 800px;
+            margin: 20px auto 60px;
+            background: #0A0A0A;
+            border: 2px solid #333;
+            padding: 40px;
+            position: relative;
+        }
+        .upload-card::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0;
+            width: 0; height: 0;
+            border-style: solid;
+            border-width: 0 40px 40px 0;
+            border-color: transparent #FF0000 transparent transparent;
+        }
+        .form-section {
+            margin-bottom: 25px;
+        }
+        .form-section label {
+            display: block;
+            font-family: 'Press Start 2P';
+            font-size: 0.6rem;
+            color: #FF0000;
+            margin-bottom: 12px;
+        }
+        .modern-input, .modern-select, .modern-textarea {
+            width: 100%;
+            background: #000;
+            border: 2px solid #222;
+            padding: 15px;
+            color: #FFF;
+            font-family: 'Roboto', sans-serif;
+            outline: none;
+        }
+        .modern-input:focus { border-color: #FF0000; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body style="background:#000; color:#fff;">
-    <div class="form-container" style="max-width:600px; margin:50px auto; border:2px solid red; padding:20px;">
-        <div style="display:flex; justify-content: space-between; margin-bottom:20px;">
-            <a href="/admin/edit-profile" style="color:white; font-size:0.8rem;">⚙️ EDIT PROFILE</a>
-            <a href="/admin/manage" style="color:red; font-size:0.8rem; font-weight:bold;">📂 MANAGE PROJEK SAYA</a>
-        </div>
-        <h2 style="color:red; text-align:center;">UPLOAD PROJEK</h2>
+<body>
+    <header>
+        <div class="logo">TERMINAL_UPLOAD</div>
+        <a href="/" class="btn-modern btn-outline">LOGOUT</a>
+    </header>
+
+    <div class="admin-nav">
+        <a href="/admin/edit-profile" class="nav-btn">⚙️ PROFILE_SETTINGS</a>
+        <a href="/admin/manage" class="nav-btn">📂 MANAGE_PROJECTS</a>
+    </div>
+
+    <div class="upload-card">
         <form action="/admin/upload" method="POST" enctype="multipart/form-data">
-            <input type="text" name="name" placeholder="Nama Projek" required class="search-bar" style="width:100%; margin:10px 0;">
-            <input type="text" name="language" placeholder="Bahasa Pemrograman" required class="search-bar" style="width:100%; margin:10px 0;">
-            <select name="type" id="t" onchange="toggle()" class="search-bar" style="width:100%; margin:10px 0; background:#111; color:#fff;">
-                <option value="file">Upload File</option>
-                <option value="code">Paste Code</option>
-            </select>
-            <div id="f"><input type="file" name="projectFile" style="margin:10px 0;"></div>
-            <div id="c" style="display:none;"><textarea name="projectCode" rows="10" placeholder="Paste code di sini..." class="search-bar" style="width:100%;"></textarea></div>
-            <textarea name="note" placeholder="Catatan (Opsional)" class="search-bar" style="width:100%; margin:10px 0;"></textarea>
-            <label>Preview Image:</label><br>
-            <input type="file" name="previewImg" style="margin:10px 0;">
-            <button type="submit" class="btn-info" style="width:100%; margin-top:20px;">UPLOAD</button>
+            
+            <div class="form-section">
+                <label>PROJECT_NAME_</label>
+                <input type="text" name="name" class="modern-input" placeholder="e.g. Cyber Security Tool" required>
+            </div>
+
+            <div class="form-section">
+                <label>PRIMARY_LANGUAGE_</label>
+                <input type="text" name="language" class="modern-input" placeholder="e.g. JavaScript / Python" required>
+            </div>
+
+            <div class="form-section">
+                <label>REPOSITORY_TYPE_</label>
+                <select name="type" id="typeSelect" class="modern-select" onchange="toggleInput()">
+                    <option value="file">CLOUD_FILE_UPLOAD</option>
+                    <option value="code">PASTE_SOURCE_CODE</option>
+                </select>
+            </div>
+
+            <div id="fileGroup" class="form-section">
+                <label>SELECT_SOURCE_FILE_</label>
+                <input type="file" name="projectFile" class="modern-input" style="border-style: dashed;">
+            </div>
+
+            <div id="codeGroup" class="form-section hidden">
+                <label>SOURCE_DATA_RAW_</label>
+                <textarea name="projectCode" class="modern-textarea" rows="10" placeholder="Paste your code here..."></textarea>
+            </div>
+
+            <div class="form-section">
+                <label>ADMIN_DOCS_(OPTIONAL)_</label>
+                <textarea name="note" class="modern-textarea" rows="3" placeholder="Additional notes..."></textarea>
+            </div>
+
+            <div class="form-section">
+                <label>VISUAL_PREVIEW_</label>
+                <input type="file" name="previewImg" class="modern-input" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn-modern" style="width: 100%; padding: 20px;">DEPLOY_PROJECT</button>
         </form>
     </div>
+
     <script>
-        function toggle(){
-            let v = document.getElementById('t').value;
-            document.getElementById('f').style.display = v==='file'?'block':'none';
-            document.getElementById('c').style.display = v==='code'?'block':'none';
+        function toggleInput() {
+            const type = document.getElementById('typeSelect').value;
+            document.getElementById('fileGroup').classList.toggle('hidden', type === 'code');
+            document.getElementById('codeGroup').classList.toggle('hidden', type === 'file');
         }
     </script>
 </body>
