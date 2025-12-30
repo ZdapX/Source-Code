@@ -1,62 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title><%= project.name %> - Detail</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= project.name %> - Source Code</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        .detail-container { max-width: 900px; margin: 50px auto; padding: 20px; }
-        .code-box { 
-            background: #111; border: 1px solid #333; padding: 20px; 
-            color: #00ff00; font-family: 'Courier New', monospace; 
-            overflow-x: auto; border-radius: 10px; margin: 20px 0;
+        .container { max-width: 900px; margin: 40px auto; padding: 20px; }
+        .detail-card { background: #0a0a0a; border: 1px solid #333; padding: 30px; border-radius: 15px; }
+        .title { color: #ff0000; font-size: 2.2rem; margin-bottom: 5px; text-transform: uppercase; }
+        .lang-badge { display: inline-block; background: #ff0000; color: white; padding: 5px 15px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; }
+        .preview-img { width: 100%; border: 1px solid #ff0000; border-radius: 10px; margin-bottom: 25px; object-fit: cover; max-height: 400px; }
+        .code-container { 
+            background: #111; border: 1px solid #ff0000; padding: 20px; 
+            border-radius: 10px; overflow-x: auto; position: relative;
+            font-family: 'Courier New', monospace; color: #00ff00; margin: 20px 0;
         }
-        .preview-img { width: 100%; border: 2px solid #ff0000; border-radius: 10px; margin-bottom: 20px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-action { 
-            background: #ff0000; color: white; padding: 15px 30px; 
-            border: none; cursor: pointer; font-weight: bold; border-radius: 5px;
+        .note-box { background: #1a1a1a; padding: 15px; border-left: 5px solid #ff0000; margin-bottom: 20px; color: #ccc; }
+        .actions { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px; }
+        .btn { 
+            padding: 15px 25px; border: none; border-radius: 5px; font-weight: bold; 
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+            text-decoration: none;
         }
+        .btn-download { background: #ff0000; color: white; }
+        .btn-download:hover { background: #cc0000; transform: translateY(-3px); }
         .btn-like { background: transparent; border: 2px solid #ff0000; color: white; }
+        .btn-like:active { transform: scale(0.9); }
+        .stats { background: #222; color: #fff; padding: 15px 25px; border-radius: 5px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-    <div class="detail-container">
-        <h1 style="color: #ff0000;"><%= project.name %></h1>
-        <p>Language: <b><%= project.language %></b></p>
+
+    <div class="container">
+        <a href="/" style="color: #666; text-decoration: none; font-size: 0.9rem;">← Kembali ke Beranda</a>
         
-        <% if(project.preview) { %>
-            <img src="<%= project.preview %>" class="preview-img">
-        <% } %>
+        <div class="detail-card" style="margin-top: 20px;">
+            <h1 class="title"><%= project.name %></h1>
+            <div class="lang-badge"><%= project.language %></div>
 
-        <div class="note-box" style="background: #1a1a1a; padding: 15px; border-left: 4px solid #ff0000;">
-            <b>Catatan:</b> <p><%= project.note || 'Tidak ada catatan.' %></p>
-        </div>
-
-        <% if(project.type === 'code') { %>
-            <div class="code-box">
-                <pre><code><%= project.content %></code></pre>
-            </div>
-        <% } %>
-
-        <div class="btn-group">
-            <% if(project.type === 'file') { %>
-                <a href="<%= project.content %>" download style="text-decoration:none">
-                    <button class="btn-action">DOWNLOAD FILE</button>
-                </a>
-            <% } else { %>
-                <button class="btn-action" onclick="copyCode()">COPY CODE</button>
+            <% if(project.preview) { %>
+                <img src="<%= project.preview %>" class="preview-img" alt="Preview">
             <% } %>
-            
-            <button class="btn-action btn-like">❤️ <%= project.likes %> Likes</button>
-            <button class="btn-action" style="background: #333;">📥 <%= project.downloads %> Downloads</button>
+
+            <div class="note-box">
+                <strong>Catatan Admin:</strong><br>
+                <%= project.note || "Tidak ada catatan khusus untuk projek ini." %>
+            </div>
+
+            <% if(project.type === 'code') { %>
+                <h3 style="color: #ff0000;">Source Code Preview:</h3>
+                <div class="code-container">
+                    <pre><code id="codeText"><%= project.content %></code></pre>
+                </div>
+                <button class="btn" style="background: #333; color: white; width: 100%;" onclick="copyCode()">📋 Copy To Clipboard</button>
+            <% } %>
+
+            <div class="actions">
+                <% if(project.type === 'file') { %>
+                    <a href="/project/<%= project._id %>/download-hit" class="btn btn-download">
+                        📥 DOWNLOAD SOURCE FILE
+                    </a>
+                <% } else { %>
+                    <!-- Jika tipe code, download as .txt -->
+                    <a href="data:text/plain;charset=utf-8,<%= encodeURIComponent(project.content) %>" download="<%= project.name %>.txt" class="btn btn-download">
+                        📥 DOWNLOAD AS .TXT
+                    </a>
+                <% } %>
+
+                <button class="btn btn-like" onclick="likeProject('<%= project._id %>')">
+                    ❤️ <span id="like-count"><%= project.likes %></span> Likes
+                </button>
+
+                <div class="stats">
+                    📥 Total Download: <strong><%= project.downloads %></strong>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // Fungsi Like Tanpa Refresh
+        async function likeProject(id) {
+            const res = await fetch(`/project/${id}/like`, { method: 'POST' });
+            const data = await res.json();
+            if(data.success) {
+                const countSpan = document.getElementById('like-count');
+                countSpan.innerText = data.totalLikes;
+                countSpan.style.color = "#ff0000";
+                countSpan.parentElement.style.borderColor = "#fff";
+                setTimeout(() => { countSpan.parentElement.style.borderColor = "#ff0000"; }, 500);
+            }
+        }
+
+        // Fungsi Copy Code
         function copyCode() {
-            const code = `<%= project.content %>`;
-            navigator.clipboard.writeText(code);
-            alert("Code berhasil di copy!");
+            const code = document.getElementById('codeText').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Source code berhasil disalin!");
+            });
         }
     </script>
 </body>
