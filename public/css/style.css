@@ -1,0 +1,93 @@
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
+
+header {
+    border-bottom: 2px solid #FF0000;
+    padding: 20px;
+    text-align: center;
+}
+
+.brand {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #FF0000;
+}
+
+.btn-info {
+    background: #FF0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.search-bar {
+    width: 80%;
+    padding: 12px;
+    margin: 20px auto;
+    display: block;
+    background: #111;
+    border: 1px solid #FF0000;
+    color: white;
+}
+
+/* Card Modern */
+.project-card {
+    background: #111;
+    border: 1px solid #333;
+    margin: 15px auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid #FF0000;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.project-card:hover {
+    border-color: #FF0000;
+    background: #0a0a0a;
+}
+
+.admin-card {
+    background: #111;
+    border: 2px solid #FF0000;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    margin: 20px auto;
+}
+
+.admin-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #FF0000;
+}
+
+.btn-download {
+    background: #FF0000;
+    color: white;
+    text-decoration: none;
+    padding: 10px 25px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.code-box {
+    background: #0a0a0a;
+    border: 1px solid #FF0000;
+    padding: 15px;
+    font-family: monospace;
+    overflow-x: auto;
+    color: #00ff00; /* Warna kode agar kontras */
+}
