@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= project.name %> - Detail</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .detail-container { max-width: 900px; margin: 50px auto; padding: 20px; }
+        .code-box { 
+            background: #111; border: 1px solid #333; padding: 20px; 
+            color: #00ff00; font-family: 'Courier New', monospace; 
+            overflow-x: auto; border-radius: 10px; margin: 20px 0;
+        }
+        .preview-img { width: 100%; border: 2px solid #ff0000; border-radius: 10px; margin-bottom: 20px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-action { 
+            background: #ff0000; color: white; padding: 15px 30px; 
+            border: none; cursor: pointer; font-weight: bold; border-radius: 5px;
+        }
+        .btn-like { background: transparent; border: 2px solid #ff0000; color: white; }
+    </style>
+</head>
+<body>
+    <div class="detail-container">
+        <h1 style="color: #ff0000;"><%= project.name %></h1>
+        <p>Language: <b><%= project.language %></b></p>
+        
+        <% if(project.preview) { %>
+            <img src="<%= project.preview %>" class="preview-img">
+        <% } %>
+
+        <div class="note-box" style="background: #1a1a1a; padding: 15px; border-left: 4px solid #ff0000;">
+            <b>Catatan:</b> <p><%= project.note || 'Tidak ada catatan.' %></p>
+        </div>
+
+        <% if(project.type === 'code') { %>
+            <div class="code-box">
+                <pre><code><%= project.content %></code></pre>
+            </div>
+        <% } %>
+
+        <div class="btn-group">
+            <% if(project.type === 'file') { %>
+                <a href="<%= project.content %>" download style="text-decoration:none">
+                    <button class="btn-action">DOWNLOAD FILE</button>
+                </a>
+            <% } else { %>
+                <button class="btn-action" onclick="copyCode()">COPY CODE</button>
+            <% } %>
+            
+            <button class="btn-action btn-like">❤️ <%= project.likes %> Likes</button>
+            <button class="btn-action" style="background: #333;">📥 <%= project.downloads %> Downloads</button>
+        </div>
+    </div>
+
+    <script>
+        function copyCode() {
+            const code = `<%= project.content %>`;
+            navigator.clipboard.writeText(code);
+            alert("Code berhasil di copy!");
+        }
+    </script>
+</body>
+</html>
