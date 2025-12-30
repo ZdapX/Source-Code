@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="form-container" style="max-width:500px; margin: 50px auto; padding: 20px; background:#0a0a0a; border:1px solid red;">
+        <h2 style="color:red">EDIT PROFILE</h2>
+        <form action="/admin/edit-profile" method="POST" enctype="multipart/form-data">
+            <label>Foto Profile:</label>
+            <input type="file" name="profilePic">
+            <input type="text" name="name" placeholder="Nama Admin" value="<%= admin.name %>">
+            <textarea name="quote" placeholder="Quotes"><%= admin.quote %></textarea>
+            <input type="text" name="hashtag" placeholder="Hashtags (#dev #web)" value="<%= admin.hashtag %>">
+            
+            <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+            <h3 style="color:red">Ganti Password</h3>
+            <input type="password" name="oldPassword" placeholder="Password Lama">
+            <input type="password" name="newPassword" placeholder="Password Baru">
+            
+            <button type="submit" class="btn-info">SIMPAN PERUBAHAN</button>
+        </form>
+    </div>
+</body>
+</html>
