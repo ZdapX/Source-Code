@@ -2,85 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN_PROFILES | Source Code</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>IDENTITIES_ // Core Personnel</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .profile-wrapper {
-            max-width: 1100px;
-            margin: 60px auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 40px;
-            padding: 0 20px;
-        }
-        .profile-card {
-            background: #0A0A0A;
-            border: 4px solid #FF0000;
-            padding: 40px;
-            position: relative;
-            box-shadow: 12px 12px 0px #222;
-        }
-        .profile-card::before {
-            content: "ADMIN_ACCESS";
-            position: absolute;
-            top: -15px;
-            left: 20px;
-            background: #FF0000;
-            color: white;
-            padding: 2px 10px;
-            font-family: 'Press Start 2P';
-            font-size: 0.6rem;
-        }
-        .avatar {
-            width: 120px;
-            height: 120px;
-            background: #111;
-            border: 3px solid #FF0000;
-            margin-bottom: 25px;
-            object-fit: cover;
-        }
-        .admin-name {
-            font-family: 'Press Start 2P';
-            font-size: 1rem;
-            color: #FF0000;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-        .admin-quote {
-            font-style: italic;
-            color: #EEE;
-            line-height: 1.8;
-            margin-bottom: 25px;
-            border-left: 3px solid #FF0000;
-            padding-left: 15px;
-        }
-        .admin-hashtags {
-            color: #FF0000;
-            font-family: 'Press Start 2P';
-            font-size: 0.55rem;
-            word-spacing: 5px;
-        }
-    </style>
 </head>
 <body>
-    <header>
-        <div class="logo">STAFF_ONLY</div>
-        <a href="/" class="btn-modern btn-outline">[ RETURN_TO_BASE ]</a>
-    </header>
+    <div class="app-container">
+        <header style="margin-bottom: 5rem; text-align: center;">
+            <p class="mono" style="color: var(--accent);">[ PERSONNEL_DIRECTORY ]</p>
+            <h1>CORE_IDENTITIES</h1>
+        </header>
 
-    <div class="profile-wrapper">
-        <% admins.forEach(admin => { %>
-        <div class="profile-card">
-            <img src="<%= admin.profilePic || 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + admin.username %>" class="avatar">
-            <h2 class="admin-name"><%= admin.name %></h2>
-            <p class="admin-quote">"<%= admin.quote %>"</p>
-            <div class="admin-hashtags">
-                <%= admin.hashtag %>
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <% admins.forEach(admin => { %>
+            <div class="project-card" style="border-radius: 4rem; padding: 3rem; cursor: default;">
+                <div style="display: flex; align-items: center; gap: 3rem; width: 100%;">
+                    
+                    <!-- Avatar with Tech Circle -->
+                    <div style="position: relative; flex-shrink: 0;">
+                        <div style="position: absolute; inset: -10px; border: 1px solid var(--accent); border-radius: 50%; opacity: 0.5;"></div>
+                        <img src="<%= admin.profilePic || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + admin.username %>" 
+                             style="width: 120px; height: 120px; border-radius: 50%; background: var(--zinc-800); object-fit: cover; display: block;">
+                    </div>
+
+                    <div style="flex: 1;">
+                        <div class="card-meta" style="margin-bottom: 1rem;">
+                            <span class="badge">LVL_ADMIN</span>
+                            <span class="mono">STATUS: ACTIVE</span>
+                        </div>
+                        <h2 style="font-size: 2rem; margin-bottom: 1rem;"><%= admin.name %></h2>
+                        <p style="color: var(--zinc-400); font-size: 1.1rem; max-width: 600px; line-height: 1.6;">
+                            "<%= admin.quote %>"
+                        </p>
+                        <div class="mono" style="color: var(--accent); margin-top: 1.5rem; font-size: 0.75rem;">
+                            <%= admin.hashtag %>
+                        </div>
+                    </div>
+
+                    <div class="stat-group">
+                        <span class="stat-label">Verification</span>
+                        <span class="stat-value" style="color: var(--accent);">SIGNED_</span>
+                    </div>
+                </div>
             </div>
+            <% }) %>
         </div>
-        <% }) %>
     </div>
+
+    <nav class="nav-floating">
+        <a href="/" class="nav-link">DASHBOARD</a>
+        <a href="/chat-pilih" class="nav-link">COMMS</a>
+    </nav>
 </body>
 </html>
