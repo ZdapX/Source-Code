@@ -2,125 +2,79 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DATABASE_MGMT | Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>REPO_MANAGER // Active Streams</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .manage-wrapper {
-            max-width: 1000px;
-            margin: 50px auto;
-            padding: 0 20px;
-        }
-        .header-status {
-            font-family: 'Press Start 2P';
-            font-size: 0.7rem;
-            color: #444;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .project-row {
-            background: #0A0A0A;
-            border-left: 5px solid #FF0000;
-            border-right: 1px solid #222;
-            border-top: 1px solid #222;
-            border-bottom: 1px solid #222;
-            padding: 25px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s;
-        }
-        .project-row:hover {
-            background: #111;
-            border-right-color: #FF0000;
-        }
-        .proj-info h3 {
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        .proj-meta {
-            font-family: 'Press Start 2P';
-            font-size: 0.5rem;
-            color: #FF0000;
-            display: flex;
-            gap: 15px;
-        }
-        .proj-stats {
-            display: flex;
-            gap: 30px;
-            text-align: center;
-        }
-        .stat-box-mini {
-            font-size: 0.8rem;
-            color: #666;
-        }
-        .stat-box-mini b {
-            display: block;
-            color: #FFF;
-            font-size: 1.1rem;
-        }
-        .btn-purge {
-            background: transparent;
-            border: 1px solid #FF0000;
-            color: #FF0000;
-            padding: 10px 20px;
-            font-family: 'Press Start 2P';
-            font-size: 0.5rem;
-            text-decoration: none;
-            transition: 0.2s;
-        }
-        .btn-purge:hover {
-            background: #FF0000;
-            color: white;
-            box-shadow: 0 0 15px #FF0000;
-        }
-    </style>
 </head>
 <body>
-    <header>
-        <div class="logo">DATABASE_EXPLORER</div>
-        <a href="/admin/upload" class="btn-modern btn-outline">+ NEW_ENTRY</a>
-    </header>
-
-    <div class="manage-wrapper">
-        <div class="header-status">
-            <span>ACTIVE_SESSION: <%= adminName %></span>
-            <span>TOTAL_OBJECTS: <%= projects.length %></span>
-        </div>
-
-        <% if(projects.length === 0) { %>
-            <div style="text-align: center; padding: 100px; border: 2px dashed #222; color: #444;">
-                <p style="font-family: 'Press Start 2P'; font-size: 0.8rem;">NO_DATA_FOUND</p>
-            </div>
-        <% } %>
-
-        <% projects.forEach(p => { %>
-        <div class="project-row">
-            <div class="proj-info">
-                <div class="proj-meta">
-                    <span>TYPE: <%= p.type.toUpperCase() %></span>
-                    <span>LANG: <%= p.language %></span>
+    <div class="app-container">
+        <header style="margin-bottom: 5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <p class="mono" style="color: var(--accent);">[ ASSET_MANAGEMENT_MODE ]</p>
+                    <h1>REPO_MANAGER</h1>
                 </div>
-                <h3><%= p.name %></h3>
-            </div>
-
-            <div class="proj-stats">
-                <div class="stat-box-mini">
-                    <b><%= p.likes %></b> LIKES
-                </div>
-                <div class="stat-box-mini">
-                    <b><%= p.downloads %></b> HITS
-                </div>
-                <div style="display: flex; align-items: center; margin-left: 20px;">
-                    <a href="/admin/delete/<%= p._id %>" class="btn-purge" onclick="return confirm('WARNING: PERMANENT PURGE?')">PURGE_DATA</a>
+                <div style="text-align: right;">
+                    <p class="mono">OPERATOR: <%= adminName %></p>
+                    <p class="mono" style="color: var(--zinc-400);">ACTIVE_REPOS: <%= projects.length %></p>
                 </div>
             </div>
-        </div>
-        <% }) %>
+        </header>
+
+        <main>
+            <% if(projects.length === 0) { %>
+                <div style="border: 1px dashed var(--zinc-800); border-radius: 4rem; padding: 6rem; text-align: center;">
+                    <p class="mono" style="opacity: 0.3;">NO_DATA_STREAMS_FOUND_IN_THIS_IDENTIFIER</p>
+                    <a href="/admin/upload" class="nav-link" style="margin-top: 2rem; justify-content: center;">[ INITIALIZE_FIRST_UPLOAD ]</a>
+                </div>
+            <% } %>
+
+            <% projects.forEach(p => { %>
+            <div class="project-card" style="cursor: default;">
+                <div class="card-info">
+                    <div class="card-meta">
+                        <span class="badge"><%= p.language %></span>
+                        <span class="mono">STATUS: STABLE</span>
+                    </div>
+                    <h2><%= p.name %></h2>
+                </div>
+                
+                <div style="display: flex; gap: 4rem; align-items: center;">
+                    <div class="card-stats">
+                        <div class="stat-group">
+                            <span class="stat-label">HITS</span>
+                            <span class="stat-value"><%= p.downloads %></span>
+                        </div>
+                        <div class="stat-group">
+                            <span class="stat-group">LIKES</span>
+                            <span class="stat-value"><%= p.likes %></span>
+                        </div>
+                    </div>
+                    
+                    <a href="/admin/delete/<%= p._id %>" 
+                       onclick="return confirm('WARNING: DATA PURGE IS IRREVERSIBLE. PROCEED?')"
+                       style="
+                            border: 1px solid var(--accent);
+                            color: var(--accent);
+                            padding: 0.8rem 2rem;
+                            border-radius: 3rem;
+                            text-decoration: none;
+                            font-family: var(--font-mono);
+                            font-size: 0.7rem;
+                            transition: 0.3s;
+                       " 
+                       onmouseover="this.style.background='var(--accent)'; this.style.color='white'; this.style.boxShadow='0 0 20px var(--accent)'"
+                       onmouseout="this.style.background='transparent'; this.style.color='var(--accent)'; this.style.boxShadow='none'">
+                        PURGE_DATA
+                    </a>
+                </div>
+            </div>
+            <% }) %>
+        </main>
     </div>
+
+    <nav class="nav-floating">
+        <a href="/admin/upload" class="nav-link">BACK_TO_UPLOAD</a>
+        <a href="/" class="nav-link">TERMINATE_SESSION</a>
+    </nav>
 </body>
 </html>
