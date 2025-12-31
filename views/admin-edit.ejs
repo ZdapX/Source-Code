@@ -2,97 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IDENTITY_EDITOR | Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>IDENTITY_CONFIG // Core Override</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .edit-container {
-            max-width: 700px;
-            margin: 50px auto;
-            background: #0A0A0A;
-            border: 4px solid #FF0000;
-            padding: 40px;
-            box-shadow: 15px 15px 0px #111;
-        }
-        .section-title {
-            font-family: 'Press Start 2P';
-            font-size: 0.8rem;
-            color: #FF0000;
-            margin: 30px 0 15px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-        .current-pic {
-            width: 100px;
-            height: 100px;
-            border: 2px solid #FF0000;
-            margin-bottom: 15px;
-            object-fit: cover;
-        }
-        .form-label {
-            display: block;
-            font-family: 'Press Start 2P';
-            font-size: 0.5rem;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        .cyber-input {
-            width: 100%;
-            background: #000;
-            border: 1px solid #333;
-            padding: 12px;
-            color: white;
-            margin-bottom: 20px;
-            outline: none;
-        }
-        .cyber-input:focus {
-            border-color: #FF0000;
-        }
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-    </style>
 </head>
 <body>
-    <header>
-        <div class="logo">IDENTITY_CONFIG</div>
-        <a href="/admin/upload" class="btn-modern btn-outline">CANCEL</a>
-    </header>
+    <div class="app-container" style="max-width: 700px;">
+        <header style="margin-bottom: 4rem; text-align: center;">
+            <p class="mono" style="color: var(--accent); margin-bottom: 0.5rem;">[ IDENTITY_MODIFICATION_PROTOCOL ]</p>
+            <h1>CORE_CONFIG</h1>
+        </header>
 
-    <div class="edit-container">
-        <h2 style="font-family: 'Press Start 2P'; font-size: 1rem; margin-bottom: 30px;">MODIFY_ADMIN_DATA</h2>
+        <div style="background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: 4rem; padding: 4rem; position: relative;">
+            <form action="/admin/edit-profile" method="POST" enctype="multipart/form-data">
+                
+                <!-- Visual Identity Section -->
+                <div style="text-align: center; margin-bottom: 4rem;">
+                    <div style="position: relative; display: inline-block;">
+                        <div style="position: absolute; inset: -10px; border: 2px solid var(--accent); border-radius: 50%; border-style: dashed; opacity: 0.5;"></div>
+                        <img src="<%= admin.profilePic || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + admin.username %>" 
+                             style="width: 150px; height: 150px; border-radius: 50%; background: var(--bg); border: 1px solid var(--zinc-800); object-fit: cover;">
+                    </div>
+                    <label class="mono" style="display: block; margin-top: 2rem; color: var(--zinc-400); font-size: 0.7rem; cursor: pointer;">
+                        [ UPLOAD_NEW_BIO_DATA_IMAGE ]
+                        <input type="file" name="profilePic" style="display: none;">
+                    </label>
+                </div>
 
-        <form action="/admin/edit-profile" method="POST" enctype="multipart/form-data">
-            
-            <div class="section-title">VISUAL_ID</div>
-            <img src="<%= admin.profilePic || 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + admin.username %>" class="current-pic">
-            <label class="form-label">UPLOAD_NEW_AVATAR_</label>
-            <input type="file" name="profilePic" class="cyber-input" style="border-style: dashed;">
+                <!-- Field: Bio Name -->
+                <div style="margin-bottom: 2rem;">
+                    <label class="mono" style="display: block; margin-bottom: 0.8rem; margin-left: 1.5rem;">ADMIN_IDENTIFIER_</label>
+                    <input type="text" name="name" value="<%= admin.name %>" class="cyber-input" required>
+                </div>
 
-            <div class="section-title">PUBLIC_INFO</div>
-            <label class="form-label">DISPLAY_NAME_</label>
-            <input type="text" name="name" value="<%= admin.name %>" class="cyber-input" required>
-            
-            <label class="form-label">PERSONAL_QUOTE_</label>
-            <textarea name="quote" class="cyber-input" rows="3"><%= admin.quote %></textarea>
-            
-            <label class="form-label">TAGS_ (Space separated)</label>
-            <input type="text" name="hashtag" value="<%= admin.hashtag %>" class="cyber-input">
+                <!-- Field: Quote -->
+                <div style="margin-bottom: 2rem;">
+                    <label class="mono" style="display: block; margin-bottom: 0.8rem; margin-left: 1.5rem;">QUOTATION_ENCRYPTION_</label>
+                    <textarea name="quote" class="cyber-input" rows="3" style="border-radius: 2rem;"><%= admin.quote %></textarea>
+                </div>
 
-            <div class="section-title">SECURITY_OVERRIDE</div>
-            <p style="font-size: 0.7rem; color: #666; margin-bottom: 15px;">*Fill both to change password, leave empty to keep current.</p>
-            <label class="form-label">OLD_PASSWORD_</label>
-            <input type="password" name="oldPassword" class="cyber-input">
-            <label class="form-label">NEW_PASSWORD_</label>
-            <input type="password" name="newPassword" class="cyber-input">
+                <!-- Field: Hashtags -->
+                <div style="margin-bottom: 4rem;">
+                    <label class="mono" style="display: block; margin-bottom: 0.8rem; margin-left: 1.5rem;">TAG_METADATA_</label>
+                    <input type="text" name="hashtag" value="<%= admin.hashtag %>" class="cyber-input">
+                </div>
 
-            <div class="btn-group">
-                <button type="submit" class="btn-modern" style="flex: 2;">SAVE_CHANGES</button>
-            </div>
-        </form>
+                <!-- Security Override Section -->
+                <div style="border-top: 1px solid var(--zinc-800); padding-top: 3rem;">
+                    <h2 class="mono" style="color: var(--accent); margin-bottom: 2rem; font-size: 0.8rem;">[ SECURITY_OVERRIDE ]</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <label class="mono" style="display: block; margin-bottom: 0.8rem; margin-left: 1.5rem;">OLD_KEY_</label>
+                            <input type="password" name="oldPassword" class="cyber-input" placeholder="••••••••">
+                        </div>
+                        <div>
+                            <label class="mono" style="display: block; margin-bottom: 0.8rem; margin-left: 1.5rem;">NEW_KEY_</label>
+                            <input type="password" name="newPassword" class="cyber-input" placeholder="••••••••">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-glow" style="width: 100%; margin-top: 4rem;">EXECUTE_MODIFICATION</button>
+            </form>
+        </div>
     </div>
+
+    <nav class="nav-floating">
+        <a href="/admin/upload" class="nav-link">ABORT</a>
+    </nav>
 </body>
 </html>
