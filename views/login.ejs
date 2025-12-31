@@ -2,88 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN_AUTH | Source Code</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>AUTH_ // Identity Verification</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .login-wrapper {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .login-card {
-            width: 100%;
-            max-width: 400px;
-            background: #0A0A0A;
-            border: 4px solid #FF0000;
-            padding: 40px;
-            box-shadow: 15px 15px 0px #111;
-        }
-        .login-header {
-            font-family: 'Press Start 2P';
-            font-size: 0.9rem;
-            color: #FF0000;
-            text-align: center;
-            margin-bottom: 30px;
-            letter-spacing: -1px;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        .input-group label {
-            display: block;
-            font-family: 'Press Start 2P';
-            font-size: 0.5rem;
-            color: #666;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        .login-input {
-            width: 100%;
-            background: #000;
-            border: 2px solid #333;
-            padding: 15px;
-            color: white;
-            font-family: 'Roboto', sans-serif;
-            outline: none;
-            transition: 0.3s;
-        }
-        .login-input:focus {
-            border-color: #FF0000;
-        }
-        .status-text {
-            text-align: center;
-            font-size: 0.7rem;
-            color: #444;
-            margin-top: 20px;
-            font-family: 'Press Start 2P';
-        }
-    </style>
 </head>
-<body>
-    <div class="login-wrapper">
-        <div class="login-card">
-            <div class="login-header">ADMIN_LOGIN_</div>
+<body style="display: flex; align-items: center; justify-content: center; height: 100vh; padding: 20px;">
+    
+    <div style="width: 100%; max-width: 450px;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <p class="mono" style="color: var(--accent); letter-spacing: 0.3em; margin-bottom: 0.5rem;">[ SECURITY_GATE_01 ]</p>
+            <h1 style="font-size: 2.5rem;">AUTHORIZE</h1>
+        </div>
+
+        <div style="background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: 3rem; padding: 3.5rem; position: relative;">
+            <!-- Decorative Accent -->
+            <div style="position: absolute; top: 2rem; right: 2rem; width: 8px; height: 8px; background: var(--accent); border-radius: 50%;"></div>
             
             <form action="/login" method="POST">
-                <div class="input-group">
-                    <label>Identification_</label>
-                    <input type="text" name="username" class="login-input" placeholder="USERNAME" required>
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="mono" style="display: block; margin-bottom: 0.8rem; margin-left: 1rem;">IDENTIFIER_</label>
+                    <input type="text" name="username" class="cyber-input" placeholder="USER_ID" required>
                 </div>
-                
-                <div class="input-group">
-                    <label>Security_Key_</label>
-                    <input type="password" name="password" class="login-input" placeholder="PASSWORD" required>
-                </div>
-                
-                <button type="submit" class="btn-modern" style="width: 100%; margin-top: 10px;">AUTHORIZE</button>
-            </form>
 
-            <div class="status-text">SYSTEM_READY</div>
+                <div style="margin-bottom: 2.5rem;">
+                    <label class="mono" style="display: block; margin-bottom: 0.8rem; margin-left: 1rem;">ACCESS_KEY_</label>
+                    <input type="password" name="password" class="cyber-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-glow" style="width: 100%;">ESTABLISH_SESSION</button>
+            </form>
         </div>
+
+        <p class="mono" style="text-align: center; margin-top: 2rem; opacity: 0.3; font-size: 0.7rem;">
+            ENCRYPTED_END_TO_END // ACCESS_LOGGED
+        </p>
     </div>
+
+    <nav class="nav-floating">
+        <a href="/" class="nav-link">ABORT_PROTOCOL</a>
+    </nav>
 </body>
 </html>
