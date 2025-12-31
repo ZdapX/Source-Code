@@ -2,133 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPLOAD_HUB | Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>COMMAND_ // Upload Center</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .admin-nav {
-            display: flex;
-            gap: 10px;
-            max-width: 800px;
-            margin: 40px auto 0;
-            padding: 0 20px;
-        }
-        .nav-btn {
-            background: #111;
-            color: white;
-            padding: 10px 15px;
-            font-family: 'Press Start 2P';
-            font-size: 0.55rem;
-            text-decoration: none;
-            border: 1px solid #333;
-            transition: 0.2s;
-        }
-        .nav-btn:hover {
-            border-color: #FF0000;
-            color: #FF0000;
-        }
-        .upload-card {
-            max-width: 800px;
-            margin: 20px auto 60px;
-            background: #0A0A0A;
-            border: 2px solid #333;
-            padding: 40px;
-            position: relative;
-        }
-        .upload-card::after {
-            content: "";
-            position: absolute;
-            top: 0; right: 0;
-            width: 0; height: 0;
-            border-style: solid;
-            border-width: 0 40px 40px 0;
-            border-color: transparent #FF0000 transparent transparent;
-        }
-        .form-section {
-            margin-bottom: 25px;
-        }
-        .form-section label {
-            display: block;
-            font-family: 'Press Start 2P';
-            font-size: 0.6rem;
-            color: #FF0000;
-            margin-bottom: 12px;
-        }
-        .modern-input, .modern-select, .modern-textarea {
-            width: 100%;
-            background: #000;
-            border: 2px solid #222;
-            padding: 15px;
-            color: #FFF;
-            font-family: 'Roboto', sans-serif;
-            outline: none;
-        }
-        .modern-input:focus { border-color: #FF0000; }
-        .hidden { display: none; }
-    </style>
 </head>
 <body>
-    <header>
-        <div class="logo">TERMINAL_UPLOAD</div>
-        <a href="/" class="btn-modern btn-outline">LOGOUT</a>
-    </header>
-
-    <div class="admin-nav">
-        <a href="/admin/edit-profile" class="nav-btn">⚙️ PROFILE_SETTINGS</a>
-        <a href="/admin/manage" class="nav-btn">📂 MANAGE_PROJECTS</a>
-    </div>
-
-    <div class="upload-card">
-        <form action="/admin/upload" method="POST" enctype="multipart/form-data">
+    <div class="app-container" style="max-width: 800px;">
+        <header style="margin-bottom: 4rem; text-align: center;">
+            <p class="mono" style="color: var(--accent); margin-bottom: 0.5rem;">[ ADMIN_PRIVILEGE_ESC ]</p>
+            <h1>UPLOAD_CENTER</h1>
             
-            <div class="form-section">
-                <label>PROJECT_NAME_</label>
-                <input type="text" name="name" class="modern-input" placeholder="e.g. Cyber Security Tool" required>
+            <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 2rem;">
+                <a href="/admin/edit-profile" class="nav-link">⚙️ CONFIG_IDENTITY</a>
+                <a href="/admin/manage" class="nav-link">📂 REPO_MANAGER</a>
             </div>
+        </header>
 
-            <div class="form-section">
-                <label>PRIMARY_LANGUAGE_</label>
-                <input type="text" name="language" class="modern-input" placeholder="e.g. JavaScript / Python" required>
-            </div>
+        <div style="background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: 4rem; padding: 4rem;">
+            <form action="/admin/upload" method="POST" enctype="multipart/form-data">
+                
+                <div style="margin-bottom: 2.5rem;">
+                    <label class="mono" style="display: block; margin-bottom: 1rem; margin-left: 1.5rem;">PROJECT_IDENTIFIER</label>
+                    <input type="text" name="name" class="cyber-input" placeholder="ENTER_PROJECT_NAME" required>
+                </div>
 
-            <div class="form-section">
-                <label>REPOSITORY_TYPE_</label>
-                <select name="type" id="typeSelect" class="modern-select" onchange="toggleInput()">
-                    <option value="file">CLOUD_FILE_UPLOAD</option>
-                    <option value="code">PASTE_SOURCE_CODE</option>
-                </select>
-            </div>
+                <div style="margin-bottom: 2.5rem;">
+                    <label class="mono" style="display: block; margin-bottom: 1rem; margin-left: 1.5rem;">CORE_LANGUAGE</label>
+                    <input type="text" name="language" class="cyber-input" placeholder="JAVASCRIPT / PYTHON / PHP" required>
+                </div>
 
-            <div id="fileGroup" class="form-section">
-                <label>SELECT_SOURCE_FILE_</label>
-                <input type="file" name="projectFile" class="modern-input" style="border-style: dashed;">
-            </div>
+                <div style="margin-bottom: 2.5rem;">
+                    <label class="mono" style="display: block; margin-bottom: 1rem; margin-left: 1.5rem;">DISTRIBUTION_TYPE</label>
+                    <select name="type" id="typeSelect" class="cyber-input" style="appearance: none;" onchange="toggleInput()">
+                        <option value="file">BINARY_FILE_UPLOAD</option>
+                        <option value="code">RAW_SOURCE_CODE</option>
+                    </select>
+                </div>
 
-            <div id="codeGroup" class="form-section hidden">
-                <label>SOURCE_DATA_RAW_</label>
-                <textarea name="projectCode" class="modern-textarea" rows="10" placeholder="Paste your code here..."></textarea>
-            </div>
+                <div id="fileGroup" style="margin-bottom: 2.5rem;">
+                    <label class="mono" style="display: block; margin-bottom: 1rem; margin-left: 1.5rem;">SELECT_ASSET_FILE</label>
+                    <div style="border: 1px dashed var(--zinc-800); border-radius: 2rem; padding: 2rem; text-align: center;">
+                        <input type="file" name="projectFile" style="color: var(--zinc-400);">
+                    </div>
+                </div>
 
-            <div class="form-section">
-                <label>ADMIN_DOCS_(OPTIONAL)_</label>
-                <textarea name="note" class="modern-textarea" rows="3" placeholder="Additional notes..."></textarea>
-            </div>
+                <div id="codeGroup" style="margin-bottom: 2.5rem; display: none;">
+                    <label class="mono" style="display: block; margin-bottom: 1rem; margin-left: 1.5rem;">CODE_BUFFER_STREAM</label>
+                    <textarea name="projectCode" class="cyber-input" rows="10" placeholder="PASTE_SOURCE_HERE..." style="border-radius: 2rem;"></textarea>
+                </div>
 
-            <div class="form-section">
-                <label>VISUAL_PREVIEW_</label>
-                <input type="file" name="previewImg" class="modern-input" accept="image/*">
-            </div>
+                <div style="margin-bottom: 2.5rem;">
+                    <label class="mono" style="display: block; margin-bottom: 1rem; margin-left: 1.5rem;">TECHNICAL_DOCUMENTATION</label>
+                    <textarea name="note" class="cyber-input" rows="3" placeholder="OPTIONAL_NOTES_"></textarea>
+                </div>
 
-            <button type="submit" class="btn-modern" style="width: 100%; padding: 20px;">DEPLOY_PROJECT</button>
-        </form>
+                <div style="margin-bottom: 3.5rem;">
+                    <label class="mono" style="display: block; margin-bottom: 1rem; margin-left: 1.5rem;">INTERFACE_PREVIEW</label>
+                    <input type="file" name="previewImg" class="cyber-input">
+                </div>
+
+                <button type="submit" class="btn-glow" style="width: 100%; font-size: 1.1rem; letter-spacing: 0.2em;">INITIALIZE_DEPLOYMENT</button>
+            </form>
+        </div>
     </div>
+
+    <nav class="nav-floating">
+        <a href="/" class="nav-link">EXIT_COMMAND</a>
+    </nav>
 
     <script>
         function toggleInput() {
             const type = document.getElementById('typeSelect').value;
-            document.getElementById('fileGroup').classList.toggle('hidden', type === 'code');
-            document.getElementById('codeGroup').classList.toggle('hidden', type === 'file');
+            document.getElementById('fileGroup').style.display = type === 'code' ? 'none' : 'block';
+            document.getElementById('codeGroup').style.display = type === 'file' ? 'none' : 'block';
         }
     </script>
 </body>
