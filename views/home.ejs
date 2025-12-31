@@ -2,41 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOURCE CODE - Repository</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>REPOS_ // Elite Tech Lab</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <div class="logo">&lt;/&gt; SOURCE CODE</div>
-        <a href="/profile" class="btn-modern">INFO 👑</a>
-    </header>
+    <div class="app-container">
+        <header style="margin-bottom: 5rem;">
+            <p class="mono" style="color: var(--accent);">[ ACCESS_GRANTED ]</p>
+            <h1>TECH_REPOS</h1>
+            <p class="mono">EXPERIMENTAL SOFTWARE ARCHIVE // v2.0</p>
+        </header>
 
-    <div class="search-container">
-        <form action="/" method="GET">
-            <input type="text" name="search" class="search-input" placeholder="SEARCH PROJECTS_">
-        </form>
+        <section class="search-section" style="margin-bottom: 4rem;">
+            <form action="/" method="GET">
+                <input type="text" name="search" class="cyber-input" placeholder="SCAN_DATABASE_FOR_PROJECTS...">
+            </form>
+        </section>
+
+        <main>
+            <% projects.forEach(p => { %>
+            <a href="/project/<%= p._id %>" class="project-card">
+                <div class="card-info">
+                    <div class="card-meta">
+                        <span class="badge"><%= p.language %></span>
+                        <span class="mono">ID: <%= p._id.toString().slice(-6) %></span>
+                    </div>
+                    <h2><%= p.name %></h2>
+                </div>
+                
+                <div class="card-stats">
+                    <div class="stat-group">
+                        <span class="stat-label">Downloads</span>
+                        <span class="stat-value"><%= p.downloads %></span>
+                    </div>
+                    <div class="stat-group">
+                        <span class="stat-label">Stability</span>
+                        <span class="stat-value" style="color: var(--accent);">99.9%</span>
+                    </div>
+                    <div class="stat-group">
+                        <span class="stat-label">Likes</span>
+                        <span class="stat-value"><%= p.likes %></span>
+                    </div>
+                </div>
+            </a>
+            <% }) %>
+        </main>
     </div>
 
-    <main class="grid">
-        <% projects.forEach(p => { %>
-        <div class="card" onclick="location.href='/project/<%= p._id %>'" style="cursor: pointer;">
-            <div>
-                <span class="card-lang"><%= p.language %></span>
-                <h2 class="card-title"><%= p.name %></h2>
-                <p style="color: var(--text-dim); font-size: 0.8rem;">By: <%= p.uploadedBy %></p>
-            </div>
-            <div class="card-stats">
-                <div class="stat-item">❤️ <b><%= p.likes %></b></div>
-                <div class="stat-item">📥 <b><%= p.downloads %></b></div>
-            </div>
-        </div>
-        <% }) %>
-    </main>
-
-    <div style="position: fixed; bottom: 30px; right: 30px;">
-        <a href="/chat-pilih" class="btn-modern" style="border-radius: 0; box-shadow: 6px 6px 0 white;">💬 CHAT_ADMIN</a>
-    </div>
+    <!-- Floating Pill Nav -->
+    <nav class="nav-floating">
+        <a href="/" class="nav-link active">DASHBOARD</a>
+        <a href="/profile" class="nav-link">IDENTITIES</a>
+        <a href="/chat-pilih" class="nav-link">COMMS</a>
+        <a href="/login" class="nav-link">AUTH</a>
+    </nav>
 </body>
 </html>
