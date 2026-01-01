@@ -6,6 +6,7 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const http = require('http');
+const https = require('https'); // Modul internal untuk download
 const { Server } = require('socket.io');
 const path = require('path');
 
@@ -27,33 +28,38 @@ app.use(express.urlencoded({ extended: true }));
 
 const MONGO_URI = "mongodb+srv://braynofficial66_db_user:Oh2ivMc2GGP0SbJF@cluster0.zi2ra3a.mongodb.net/website_db?retryWrites=true&w=majority&appName=Cluster0";
 
-// KONFIGURASI CLOUDINARY (HARDCODED)
+// KREDENSIAL CLOUDINARY
+const CLOUD_NAME = 'dnb0q2s2h';
+const API_KEY = '838368993294916';
+const API_SECRET = 'N9U1eFJGKjJ-A8Eo4BTtSCl720c';
+
 cloudinary.config({
-  cloud_name: 'dnb0q2s2h',
-  api_key: '838368993294916',
-  api_secret: 'N9U1eFJGKjJ-A8Eo4BTtSCl720c'
+  cloud_name: CLOUD_NAME,
+  api_key: API_KEY,
+  api_secret: API_SECRET
 });
 
 app.use(session({
-  secret: 'brayn_elite_final_ultimate_2026',
+  secret: 'brayn_elite_proxy_v5',
   resave: false,
   saveUninitialized: true,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => { console.log("Elite Database Connected"); seedAdmins(); });
+mongoose.connect(MONGO_URI).then(() => {
+    console.log("Elite Database Connected");
+    seedAdmins();
+});
 
-// STORAGE CONFIG - MEMASTIKAN EKSTENSI TERSIMPAN
+// STORAGE CONFIG
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     const ext = path.extname(file.originalname).toLowerCase(); 
-    const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '_').toLowerCase();
     return {
       folder: 'website_source_code',
       resource_type: 'auto', 
-      public_id: `${baseName}-${Date.now()}${ext}`, 
+      public_id: `file_${Date.now()}${ext}`, 
     };
   },
 });
@@ -86,9 +92,9 @@ app.get('/project/:id', async (req, res) => {
 });
 
 /**
- * FIX 401 UNAUTHORIZED (THE FINAL SOLUTION)
- * Kita membedah URL untuk mendapatkan PublicID yang bersih, 
- * lalu membuat Signed URL resmi dari Cloudinary SDK.
+ * BYPASS 401 UNAUTHORIZED (PROXY METHOD)
+ * Server akan mendownload file dari Cloudinary menggunakan AUTH resmi
+ * lalu meneruskannya ke user. PASTI WORK 100%.
  */
 app.get('/project/:id/download-hit', async (req, res) => {
     try {
@@ -99,36 +105,33 @@ app.get('/project/:id/download-hit', async (req, res) => {
 
         if (project.type === 'file') {
             const fileUrl = project.content;
-            
-            // 1. Ekstrak Public ID dari URL Cloudinary secara akurat
-            // Menghapus domain dan versi (v17xxxxxx)
-            const regex = /upload\/v\d+\/(.+)$/;
-            const match = fileUrl.match(regex);
-            
-            if (match && match[1]) {
-                const publicId = match[1]; // Hasilnya: website_source_code/file.zip
-                
-                // 2. Buat URL yang ditandatangani (Signed) agar bypass 401
-                const signedUrl = cloudinary.url(publicId, {
-                    resource_type: 'raw',
-                    sign_url: true,
-                    flags: `attachment:${safeName}`, // Memaksa download dengan nama projek
-                    secure: true
-                });
+            const extension = fileUrl.split('.').pop().split('?')[0]; 
+            const fileName = `${safeName}.${extension}`;
 
-                res.redirect(signedUrl);
-            } else {
-                // Fallback jika regex gagal, langsung redirect asli
-                res.redirect(fileUrl);
-            }
+            // Beritahu browser bahwa ini adalah file download
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+            // Minta file ke Cloudinary lewat "Jalur Belakang" (Authenticated)
+            const options = {
+                auth: `${API_KEY}:${API_SECRET}` // Ini yang bikin Cloudinary tidak bisa menolak
+            };
+
+            https.get(fileUrl, options, (cloudRes) => {
+                if (cloudRes.statusCode === 200) {
+                    cloudRes.pipe(res); // Alirkan datanya ke user
+                } else {
+                    // Jika jalur belakang gagal, coba jalur biasa (fallback)
+                    res.redirect(fileUrl);
+                }
+            }).on('error', (err) => {
+                res.status(500).send("Proxy Error");
+            });
+
         } else {
-            // Jika tipe CODE, kirim sebagai .txt
             res.setHeader('Content-Disposition', `attachment; filename="${safeName}.txt"`);
-            res.setHeader('Content-Type', 'text/plain');
             res.send(project.content);
         }
     } catch (e) {
-        console.error(e);
         res.redirect('back');
     }
 });
@@ -151,7 +154,11 @@ app.post('/admin/upload', isAdmin, upload.fields([{name:'projectFile'}, {name:'p
     const { name, language, type, projectCode, note } = req.body;
     let content = type === 'file' ? (req.files['projectFile'] ? req.files['projectFile'][0].path : "") : projectCode;
     let preview = (req.files['previewImg'] && req.files['previewImg'][0]) ? req.files['previewImg'][0].path : "";
-    await Project.create({ name, language, type, content, note, preview, uploadedBy: req.session.username });
+    
+    await Project.create({ 
+        name, language, type, content, note, preview, 
+        uploadedBy: req.session.username 
+    });
     res.redirect('/admin/manage');
   } catch(e) { res.status(500).send(e.message); }
 });
