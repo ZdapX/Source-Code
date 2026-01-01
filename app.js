@@ -35,7 +35,7 @@ cloudinary.config({
 });
 
 app.use(session({
-  secret: 'brayn_elite_final_secure',
+  secret: 'brayn_elite_ultra_secure_v4',
   resave: false,
   saveUninitialized: true,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
@@ -46,7 +46,7 @@ mongoose.connect(MONGO_URI).then(() => {
     seedAdmins();
 });
 
-// STORAGE CONFIG - MENGAMBIL EKSTENSI ASLI
+// STORAGE CONFIG - MEMASTIKAN EKSTENSI TERBAWA KE CLOUDINARY
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
@@ -55,8 +55,8 @@ const storage = new CloudinaryStorage({
     
     return {
       folder: 'website_source_code',
-      resource_type: 'auto', // OTOMATIS mendeteksi zip, rar, html, py
-      public_id: `${baseName}-${Date.now()}${ext}`, // MENYIMPAN DENGAN EKSTENSI
+      resource_type: 'auto', 
+      public_id: `${baseName}-${Date.now()}${ext}`, // Ekstensi (.zip / .html) masuk ke ID
     };
   },
 });
@@ -74,7 +74,7 @@ async function seedAdmins() {
 
 const isAdmin = (req, res, next) => { if (req.session.adminId) return next(); res.redirect('/login'); };
 
-// --- ROUTES ---
+// --- ELITE ROUTES ---
 
 app.get('/', async (req, res) => {
   const { search } = req.query;
@@ -89,8 +89,8 @@ app.get('/project/:id', async (req, res) => {
 });
 
 /**
- * FIX 401 & NO EXTENSION: 
- * Menggunakan teknik download paksa Cloudinary
+ * FIX 401 UNAUTHORIZED: 
+ * Menggunakan SIGNED URL agar Cloudinary mengizinkan download file RAW (Zip/HTML)
  */
 app.get('/project/:id/download-hit', async (req, res) => {
     try {
@@ -98,20 +98,30 @@ app.get('/project/:id/download-hit', async (req, res) => {
         if (!project) return res.redirect('/');
 
         if (project.type === 'file') {
-            const fileUrl = project.content;
+            // Kita ambil Public ID dari URL yang disimpan (format: folder/namafile.zip)
+            const parts = project.content.split('/');
+            const folder = parts[parts.length - 2];
+            const fileNameWithExt = parts[parts.length - 1];
+            const publicId = `${folder}/${fileNameWithExt}`;
+
+            // BUAT SIGNED URL (Hanya berlaku 1 jam)
+            // Ini akan melewati blokir 401 secara otomatis
+            const signedUrl = cloudinary.url(publicId, {
+                resource_type: 'raw',
+                flags: 'attachment',
+                sign_url: true, // INI KUNCINYA
+                type: 'upload',
+                secure: true
+            });
             
-            // Generate URL download yang memaksa download (attachment mode)
-            // Ini akan mengganti '/upload/' menjadi '/upload/fl_attachment/'
-            // Dan memastikan tidak kena 401 karena formatnya 'clean'
-            const downloadUrl = fileUrl.replace('/upload/', '/upload/fl_attachment/');
-            
-            res.redirect(downloadUrl);
+            res.redirect(signedUrl);
         } else {
             const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
             res.setHeader('Content-Disposition', `attachment; filename="${safeName}.txt"`);
             res.send(project.content);
         }
     } catch (e) {
+        console.log(e);
         res.redirect('back');
     }
 });
