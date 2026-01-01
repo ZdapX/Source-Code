@@ -6,11 +6,10 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const http = require('http');
-const https = require('https'); // Digunakan untuk streaming file
 const { Server } = require('socket.io');
 const path = require('path');
 
-// --- IMPORT MODELS ---
+// --- MODELS ---
 const Project = require('./models/Project');
 const Admin = require('./models/Admin');
 const Message = require('./models/Message');
@@ -19,7 +18,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// --- CONFIGURATION ---
+// --- SETTINGS ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -35,22 +34,34 @@ cloudinary.config({
 });
 
 app.use(session({
-  secret: 'brayn_elite_2026_secure',
+  secret: 'brayn_elite_secure_v3',
   resave: false,
   saveUninitialized: true,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => { console.log("Elite Database Connected"); seedAdmins(); })
-  .catch(err => console.log(err));
+mongoose.connect(MONGO_URI).then(() => {
+    console.log("Elite Database Connected");
+    seedAdmins();
+});
 
-// Multer Storage
+// ==========================================
+// FIX: KONFIGURASI STORAGE AGAR EKSTENSI AWET
+// ==========================================
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'website_source_code',
-    resource_type: 'auto', 
+  params: async (req, file) => {
+    // Ambil ekstensi asli (misal: .zip, .html, .py)
+    const ext = path.extname(file.originalname); 
+    // Ambil nama tanpa ekstensi
+    const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    
+    return {
+      folder: 'website_source_code',
+      resource_type: 'auto', // Mendukung zip, rar, py, html
+      // Public ID harus menyertakan ekstensi agar link Cloudinary punya .zip di ujungnya
+      public_id: `${baseName}-${Date.now()}${ext}`, 
+    };
   },
 });
 const upload = multer({ storage: storage });
@@ -81,37 +92,23 @@ app.get('/project/:id', async (req, res) => {
   res.render('project-detail', { project });
 });
 
-/**
- * ULTIMATE DOWNLOAD FIX (PROXY STREAMING)
- * Ini akan memperbaiki masalah nama file acak dan error 400
- */
+// ==========================================
+// FIX: ROUTE DOWNLOAD (SIMPLE & RELIABLE)
+// ==========================================
 app.get('/project/:id/download-hit', async (req, res) => {
     try {
         const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } }, { new: true });
         if (!project) return res.redirect('/');
 
-        const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
         if (project.type === 'file') {
-            const fileUrl = project.content;
-            // Ambil ekstensi asli dari URL Cloudinary
-            const extension = fileUrl.split('.').pop().split('?')[0]; 
-            const fileName = `${safeName}.${extension}`;
-
-            // Set Header agar browser mengenali ini sebagai download file dengan nama yang benar
-            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-
-            // Ambil file dari Cloudinary dan alirkan (pipe) langsung ke user
-            https.get(fileUrl, (cloudRes) => {
-                cloudRes.pipe(res);
-            }).on('error', (err) => {
-                res.redirect(fileUrl); // Fallback ke link asli jika streaming gagal
-            });
-            
+            // Karena upload sudah kita perbaiki, 
+            // project.content akan berisi URL yang sudah ada ekstensinya (.zip/.html)
+            // Jadi kita cukup redirect saja, browser akan langsung mengenalinya.
+            res.redirect(project.content);
         } else {
             // Jika tipe CODE, kirim sebagai .txt
+            const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
             res.setHeader('Content-Disposition', `attachment; filename="${safeName}.txt"`);
-            res.setHeader('Content-Type', 'text/plain');
             res.send(project.content);
         }
     } catch (e) {
@@ -133,11 +130,19 @@ app.post('/login', async (req, res) => {
 
 app.get('/admin/upload', isAdmin, (req, res) => res.render('admin-upload'));
 app.post('/admin/upload', isAdmin, upload.fields([{name:'projectFile'}, {name:'previewImg'}]), async (req, res) => {
-  const { name, language, type, projectCode, note } = req.body;
-  let content = type === 'file' ? (req.files['projectFile'] ? req.files['projectFile'][0].path : "") : projectCode;
-  let preview = (req.files['previewImg'] && req.files['previewImg'][0]) ? req.files['previewImg'][0].path : "";
-  await Project.create({ name, language, type, content, note, preview, uploadedBy: req.session.username });
-  res.redirect('/admin/manage');
+  try {
+    const { name, language, type, projectCode, note } = req.body;
+    let content = type === 'file' ? (req.files['projectFile'] ? req.files['projectFile'][0].path : "") : projectCode;
+    
+    if (!content) return res.send("<script>alert('Gagal: Content kosong!'); window.history.back();</script>");
+    
+    let preview = (req.files['previewImg'] && req.files['previewImg'][0]) ? req.files['previewImg'][0].path : "";
+    await Project.create({ 
+        name, language, type, content, note, preview, 
+        uploadedBy: req.session.username 
+    });
+    res.redirect('/admin/manage');
+  } catch(e) { res.status(500).send(e.message); }
 });
 
 app.get('/admin/manage', isAdmin, async (req, res) => {
