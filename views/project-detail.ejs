@@ -2,145 +2,66 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CORE_DATA // <%= project.name %></title>
+    <title><%= project.name %> // Elite Repository</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Top Navigation Protocol -->
-        <div style="margin-bottom: 4rem;">
-            <a href="/" class="nav-link" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                <span class="mono">[ ← BACK_TO_DATABASE ]</span>
-            </a>
-        </div>
+        <header style="margin-bottom: 4rem;">
+            <a href="/" class="nav-link" style="margin-bottom: 2rem; display: block;">[ ← BACK_TO_DATABASE ]</a>
+            <span class="badge" style="margin-bottom: 1rem;"><%= project.language %> // <%= project.type.toUpperCase() %></span>
+            <h1><%= project.name %></h1>
+        </header>
 
-        <!-- Project Identity Header -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem;">
-            <div>
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                    <span class="badge"><%= project.language %></span>
-                    <span class="badge" style="background: transparent; border: 1px solid var(--accent);"><%= project.type.toUpperCase() %></span>
-                </div>
-                <h1 style="margin: 0; line-height: 1;"><%= project.name %></h1>
-            </div>
-            <div style="text-align: right;">
-                <p class="stat-label">System Operator</p>
-                <p class="stat-value" style="color: var(--accent);"><%= project.uploadedBy %></p>
-            </div>
-        </div>
-
-        <!-- Main Interface Grid -->
         <div style="display: grid; grid-template-columns: 1fr 350px; gap: 4rem;">
-            
             <div class="main-content">
-                <!-- Visual Preview -->
                 <% if(project.preview) { %>
-                    <div style="border-radius: 3rem; overflow: hidden; border: 1px solid var(--zinc-800); margin-bottom: 4rem; background: var(--zinc-900);">
-                        <img src="<%= project.preview %>" style="width: 100%; display: block; opacity: 0.9;">
+                    <div style="border-radius: 3rem; overflow: hidden; border: 1px solid var(--zinc-800); margin-bottom: 3rem;">
+                        <img src="<%= project.preview %>" style="width: 100%; display: block;">
                     </div>
                 <% } %>
-
-                <!-- Documentation Box -->
-                <div style="background: var(--zinc-900); padding: 3rem; border-radius: 3rem; border-left: 6px solid var(--accent); margin-bottom: 4rem;">
-                    <p class="mono" style="color: var(--accent); margin-bottom: 1rem;">[ DOCUMENTATION_STREAM ]</p>
-                    <p style="color: var(--zinc-400); font-size: 1.1rem; line-height: 1.7;">
-                        <%= project.note || "No additional technical documentation provided for this asset." %>
-                    </p>
+                
+                <div style="background: var(--zinc-900); padding: 3rem; border-radius: 3rem; border: 1px solid var(--zinc-800); margin-bottom: 3rem;">
+                    <p class="mono" style="color: var(--accent); margin-bottom: 1rem;">[ DOCUMENTATION ]</p>
+                    <p><%= project.note || "No documentation." %></p>
                 </div>
 
-                <!-- Conditional Rendering: CODE BLOCK -->
                 <% if(project.type === 'code') { %>
-                    <div style="position: relative; margin-top: 3rem;">
-                        <div class="mono" style="margin-bottom: 1rem; margin-left: 2rem;">RAW_SOURCE_STREAM:</div>
-                        <div style="background: #050505; border: 1px solid var(--zinc-800); border-radius: 2.5rem; padding: 2.5rem; overflow: hidden;">
-                            <pre style="margin: 0; color: #eee; font-family: var(--font-mono); font-size: 0.9rem; overflow-x: auto;"><code id="sourceCode"><%= project.content %></code></pre>
-                        </div>
+                    <div style="background: #050505; border: 1px solid var(--zinc-800); border-radius: 2rem; padding: 2.5rem; font-family: var(--font-mono); overflow-x: auto;">
+                        <pre><code id="pCode"><%= project.content %></code></pre>
                     </div>
                 <% } %>
             </div>
 
             <div class="sidebar">
-                <!-- Action Console Card -->
-                <div style="background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: 3.5rem; padding: 3rem; position: sticky; top: 2rem; box-shadow: 0 40px 100px rgba(0,0,0,0.5);">
-                    <div style="margin-bottom: 3rem;">
-                        <p class="stat-label">Repository Resonations</p>
-                        <p class="stat-value" id="like-total" style="font-size: 3rem; font-weight: 700;"><%= project.likes %></p>
+                <div style="background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: 3.5rem; padding: 3rem; position: sticky; top: 2rem;">
+                    <div style="margin-bottom: 2rem;">
+                        <p class="stat-label">Likes</p>
+                        <p class="stat-value" id="likeCount" style="font-size: 2.5rem;"><%= project.likes %></p>
                     </div>
-
-                    <div style="margin-bottom: 3rem;">
-                        <p class="stat-label">Total Engagements</p>
-                        <p class="stat-value" style="font-size: 1.5rem;"><%= project.downloads %></p>
-                    </div>
-
-                    <!-- DYNAMIC ACTION BUTTONS -->
-                    <div style="display: flex; flex-direction: column; gap: 1rem;">
-                        
-                        <% if(project.type === 'file') { %>
-                            <!-- CASE: PROJECT IS A FILE -->
-                            <a href="/project/<%= project._id %>/download-hit" class="btn-glow" style="text-align: center; display: block; text-decoration: none;">
-                                INITIALIZE_DOWNLOAD
-                            </a>
-                        <% } else { %>
-                            <!-- CASE: PROJECT IS SOURCE CODE -->
-                            <button class="btn-glow" id="copyBtn" onclick="copyProtocol()">
-                                COPY_SOURCE_CODE
-                            </button>
-                        <% } %>
-
-                        <button class="cyber-input" style="cursor: pointer; text-align: center;" onclick="resonateLike()">
-                            RESONATE_LIKE
-                        </button>
-                    </div>
-
-                    <p class="mono" style="margin-top: 2rem; font-size: 0.6rem; text-align: center; opacity: 0.3;">
-                        SECURE_ACCESS_VERIFIED // v.2.0.5
-                    </p>
+                    
+                    <% if(project.type === 'file') { %>
+                        <a href="/project/<%= project._id %>/download-hit" class="btn-glow" style="width: 100%; display: block; text-decoration: none;">DOWNLOAD_ZIP</a>
+                    <% } else { %>
+                        <button class="btn-glow" style="width: 100%;" onclick="copyCode()">COPY_SOURCE</button>
+                    <% } %>
+                    
+                    <button class="cyber-input" style="margin-top: 1rem; text-align: center; cursor: pointer;" onclick="like()">RESONATE_LIKE</button>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- Floating Nav Protocol -->
-    <nav class="nav-floating">
-        <a href="/" class="nav-link">EXIT_CORE</a>
-    </nav>
-
     <script>
-        // RESONATE LIKE PROTOCOL
-        async function resonateLike() {
-            try {
-                const res = await fetch('/project/<%= project._id %>/like', { method: 'POST' });
-                const data = await res.json();
-                if(data.success) {
-                    const el = document.getElementById('like-total');
-                    el.innerText = data.totalLikes;
-                    el.style.color = 'var(--accent)';
-                    setTimeout(() => el.style.color = 'white', 500);
-                }
-            } catch (e) { console.error("Communication error."); }
+        async function like() {
+            const res = await fetch('/project/<%= project._id %>/like', {method:'POST'});
+            const data = await res.json();
+            if(data.success) document.getElementById('likeCount').innerText = data.totalLikes;
         }
-
-        // COPY SOURCE PROTOCOL
-        function copyProtocol() {
-            const code = document.getElementById('sourceCode').innerText;
-            const btn = document.getElementById('copyBtn');
-            
-            navigator.clipboard.writeText(code).then(() => {
-                const originalText = btn.innerText;
-                btn.innerText = "COPIED_TO_BUFFER!";
-                btn.style.background = "white";
-                btn.style.color = "black";
-                btn.style.boxShadow = "0 0 30px white";
-                
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.background = "var(--accent)";
-                    btn.style.color = "white";
-                    btn.style.boxShadow = "none";
-                }, 2000);
-            });
+        function copyCode() {
+            const c = document.getElementById('pCode').innerText;
+            navigator.clipboard.writeText(c);
+            alert("Copied to buffer!");
         }
     </script>
 </body>
