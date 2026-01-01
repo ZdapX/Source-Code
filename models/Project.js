@@ -10,7 +10,7 @@ const ProjectSchema = new mongoose.Schema({
     preview: { type: String, default: '' },
     likes: { type: Number, default: 0 },
     downloads: { type: Number, default: 0 },
-    uploadedBy: { type: String, required: true }, // 'Silverhold' atau 'BraynOfficial'
+    uploadedBy: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
 });
 
