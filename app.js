@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const MONGO_URI = "mongodb+srv://braynofficial66_db_user:Oh2ivMc2GGP0SbJF@cluster0.zi2ra3a.mongodb.net/website_db?retryWrites=true&w=majority&appName=Cluster0";
 
-// KONFIGURASI CLOUDINARY
+// KONFIGURASI CLOUDINARY (HARDCODED)
 cloudinary.config({
   cloud_name: 'dnb0q2s2h',
   api_key: '838368993294916',
@@ -35,28 +35,25 @@ cloudinary.config({
 });
 
 app.use(session({
-  secret: 'brayn_elite_ultra_secure_v4',
+  secret: 'brayn_elite_final_ultimate_2026',
   resave: false,
   saveUninitialized: true,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-mongoose.connect(MONGO_URI).then(() => {
-    console.log("Elite Database Connected");
-    seedAdmins();
-});
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => { console.log("Elite Database Connected"); seedAdmins(); });
 
-// STORAGE CONFIG - MEMASTIKAN EKSTENSI TERBAWA KE CLOUDINARY
+// STORAGE CONFIG - MEMASTIKAN EKSTENSI TERSIMPAN
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     const ext = path.extname(file.originalname).toLowerCase(); 
     const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    
     return {
       folder: 'website_source_code',
       resource_type: 'auto', 
-      public_id: `${baseName}-${Date.now()}${ext}`, // Ekstensi (.zip / .html) masuk ke ID
+      public_id: `${baseName}-${Date.now()}${ext}`, 
     };
   },
 });
@@ -89,39 +86,49 @@ app.get('/project/:id', async (req, res) => {
 });
 
 /**
- * FIX 401 UNAUTHORIZED: 
- * Menggunakan SIGNED URL agar Cloudinary mengizinkan download file RAW (Zip/HTML)
+ * FIX 401 UNAUTHORIZED (THE FINAL SOLUTION)
+ * Kita membedah URL untuk mendapatkan PublicID yang bersih, 
+ * lalu membuat Signed URL resmi dari Cloudinary SDK.
  */
 app.get('/project/:id/download-hit', async (req, res) => {
     try {
         const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } }, { new: true });
         if (!project) return res.redirect('/');
 
-        if (project.type === 'file') {
-            // Kita ambil Public ID dari URL yang disimpan (format: folder/namafile.zip)
-            const parts = project.content.split('/');
-            const folder = parts[parts.length - 2];
-            const fileNameWithExt = parts[parts.length - 1];
-            const publicId = `${folder}/${fileNameWithExt}`;
+        const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
-            // BUAT SIGNED URL (Hanya berlaku 1 jam)
-            // Ini akan melewati blokir 401 secara otomatis
-            const signedUrl = cloudinary.url(publicId, {
-                resource_type: 'raw',
-                flags: 'attachment',
-                sign_url: true, // INI KUNCINYA
-                type: 'upload',
-                secure: true
-            });
+        if (project.type === 'file') {
+            const fileUrl = project.content;
             
-            res.redirect(signedUrl);
+            // 1. Ekstrak Public ID dari URL Cloudinary secara akurat
+            // Menghapus domain dan versi (v17xxxxxx)
+            const regex = /upload\/v\d+\/(.+)$/;
+            const match = fileUrl.match(regex);
+            
+            if (match && match[1]) {
+                const publicId = match[1]; // Hasilnya: website_source_code/file.zip
+                
+                // 2. Buat URL yang ditandatangani (Signed) agar bypass 401
+                const signedUrl = cloudinary.url(publicId, {
+                    resource_type: 'raw',
+                    sign_url: true,
+                    flags: `attachment:${safeName}`, // Memaksa download dengan nama projek
+                    secure: true
+                });
+
+                res.redirect(signedUrl);
+            } else {
+                // Fallback jika regex gagal, langsung redirect asli
+                res.redirect(fileUrl);
+            }
         } else {
-            const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            // Jika tipe CODE, kirim sebagai .txt
             res.setHeader('Content-Disposition', `attachment; filename="${safeName}.txt"`);
+            res.setHeader('Content-Type', 'text/plain');
             res.send(project.content);
         }
     } catch (e) {
-        console.log(e);
+        console.error(e);
         res.redirect('back');
     }
 });
@@ -144,11 +151,7 @@ app.post('/admin/upload', isAdmin, upload.fields([{name:'projectFile'}, {name:'p
     const { name, language, type, projectCode, note } = req.body;
     let content = type === 'file' ? (req.files['projectFile'] ? req.files['projectFile'][0].path : "") : projectCode;
     let preview = (req.files['previewImg'] && req.files['previewImg'][0]) ? req.files['previewImg'][0].path : "";
-    
-    await Project.create({ 
-        name, language, type, content, note, preview, 
-        uploadedBy: req.session.username 
-    });
+    await Project.create({ name, language, type, content, note, preview, uploadedBy: req.session.username });
     res.redirect('/admin/manage');
   } catch(e) { res.status(500).send(e.message); }
 });
