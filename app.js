@@ -6,11 +6,10 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const http = require('http');
-const https = require('https'); // Modul internal untuk download
-const { Server } = require('socket.io');
 const path = require('path');
+const { Server } = require('socket.io');
 
-// --- MODELS ---
+// Models
 const Project = require('./models/Project');
 const Admin = require('./models/Admin');
 const Message = require('./models/Message');
@@ -28,42 +27,39 @@ app.use(express.urlencoded({ extended: true }));
 
 const MONGO_URI = "mongodb+srv://braynofficial66_db_user:Oh2ivMc2GGP0SbJF@cluster0.zi2ra3a.mongodb.net/website_db?retryWrites=true&w=majority&appName=Cluster0";
 
-// KREDENSIAL CLOUDINARY
-const CLOUD_NAME = 'dnb0q2s2h';
-const API_KEY = '838368993294916';
-const API_SECRET = 'N9U1eFJGKjJ-A8Eo4BTtSCl720c';
-
 cloudinary.config({
-  cloud_name: CLOUD_NAME,
-  api_key: API_KEY,
-  api_secret: API_SECRET
+  cloud_name: 'dnb0q2s2h',
+  api_key: '838368993294916',
+  api_secret: 'N9U1eFJGKjJ-A8Eo4BTtSCl720c'
 });
 
 app.use(session({
-  secret: 'brayn_elite_proxy_v5',
+  secret: 'brayn_mongodb_internal_storage_2026',
   resave: false,
   saveUninitialized: true,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 mongoose.connect(MONGO_URI).then(() => {
-    console.log("Elite Database Connected");
+    console.log("Elite Database Connected (Internal Mode)");
     seedAdmins();
 });
 
-// STORAGE CONFIG
-const storage = new CloudinaryStorage({
+// --- MULTER CONFIG ---
+// 1. Storage untuk Gambar Preview (tetap ke Cloudinary)
+const imgStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
-    const ext = path.extname(file.originalname).toLowerCase(); 
-    return {
-      folder: 'website_source_code',
-      resource_type: 'auto', 
-      public_id: `file_${Date.now()}${ext}`, 
-    };
-  },
+  params: { folder: 'previews', resource_type: 'image' },
 });
-const upload = multer({ storage: storage });
+
+// 2. Memory Storage untuk File Source Code (disimpan ke MongoDB)
+const memoryStorage = multer.memoryStorage();
+
+// Middleware upload gabungan
+const multiUpload = multer({ storage: multer.memoryStorage() }).fields([
+    { name: 'projectFile', maxCount: 1 },
+    { name: 'previewImg', maxCount: 1 }
+]);
 
 async function seedAdmins() {
   const count = await Admin.countDocuments();
@@ -77,7 +73,7 @@ async function seedAdmins() {
 
 const isAdmin = (req, res, next) => { if (req.session.adminId) return next(); res.redirect('/login'); };
 
-// --- ELITE ROUTES ---
+// --- ROUTES ---
 
 app.get('/', async (req, res) => {
   const { search } = req.query;
@@ -92,42 +88,23 @@ app.get('/project/:id', async (req, res) => {
 });
 
 /**
- * BYPASS 401 UNAUTHORIZED (PROXY METHOD)
- * Server akan mendownload file dari Cloudinary menggunakan AUTH resmi
- * lalu meneruskannya ke user. PASTI WORK 100%.
+ * FIXED DOWNLOAD: MENGAMBIL FILE DARI MONGODB
+ * Tidak akan ada lagi Error 401 Cloudinary!
  */
 app.get('/project/:id/download-hit', async (req, res) => {
     try {
         const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } }, { new: true });
         if (!project) return res.redirect('/');
 
-        const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
         if (project.type === 'file') {
-            const fileUrl = project.content;
-            const extension = fileUrl.split('.').pop().split('?')[0]; 
-            const fileName = `${safeName}.${extension}`;
-
-            // Beritahu browser bahwa ini adalah file download
-            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-
-            // Minta file ke Cloudinary lewat "Jalur Belakang" (Authenticated)
-            const options = {
-                auth: `${API_KEY}:${API_SECRET}` // Ini yang bikin Cloudinary tidak bisa menolak
-            };
-
-            https.get(fileUrl, options, (cloudRes) => {
-                if (cloudRes.statusCode === 200) {
-                    cloudRes.pipe(res); // Alirkan datanya ke user
-                } else {
-                    // Jika jalur belakang gagal, coba jalur biasa (fallback)
-                    res.redirect(fileUrl);
-                }
-            }).on('error', (err) => {
-                res.status(500).send("Proxy Error");
-            });
-
+            if (!project.fileData) return res.status(404).send("File tidak ditemukan di database.");
+            
+            // Kirim data buffer kembali menjadi file asli
+            res.setHeader('Content-Type', project.fileType || 'application/octet-stream');
+            res.setHeader('Content-Disposition', `attachment; filename="${project.fileName}"`);
+            res.send(project.fileData);
         } else {
+            const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
             res.setHeader('Content-Disposition', `attachment; filename="${safeName}.txt"`);
             res.send(project.content);
         }
@@ -149,18 +126,44 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/admin/upload', isAdmin, (req, res) => res.render('admin-upload'));
-app.post('/admin/upload', isAdmin, upload.fields([{name:'projectFile'}, {name:'previewImg'}]), async (req, res) => {
+
+// LOGIKA UPLOAD BARU: SIMPAN FILE KE MONGODB
+app.post('/admin/upload', isAdmin, multiUpload, async (req, res) => {
   try {
     const { name, language, type, projectCode, note } = req.body;
-    let content = type === 'file' ? (req.files['projectFile'] ? req.files['projectFile'][0].path : "") : projectCode;
-    let preview = (req.files['previewImg'] && req.files['previewImg'][0]) ? req.files['previewImg'][0].path : "";
-    
-    await Project.create({ 
-        name, language, type, content, note, preview, 
-        uploadedBy: req.session.username 
-    });
+    let newProject = {
+        name, language, type, note,
+        uploadedBy: req.session.username
+    };
+
+    // 1. Handle File (Simpan ke MongoDB Buffer)
+    if (type === 'file' && req.files['projectFile']) {
+        const file = req.files['projectFile'][0];
+        newProject.fileData = file.buffer;
+        newProject.fileType = file.mimetype;
+        newProject.fileName = file.originalname;
+    } else {
+        newProject.content = projectCode;
+    }
+
+    // 2. Handle Preview Image (Tetap ke Cloudinary agar DB tidak berat)
+    if (req.files['previewImg']) {
+        const imgFile = req.files['previewImg'][0];
+        // Upload manual buffer ke cloudinary khusus gambar
+        const result = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream({ folder: 'previews' }, (error, result) => {
+                if (error) reject(error); else resolve(result);
+            }).end(imgFile.buffer);
+        });
+        newProject.preview = result.secure_url;
+    }
+
+    await Project.create(newProject);
     res.redirect('/admin/manage');
-  } catch(e) { res.status(500).send(e.message); }
+  } catch(e) { 
+      console.log(e);
+      res.status(500).send("Upload Gagal: " + e.message); 
+  }
 });
 
 app.get('/admin/manage', isAdmin, async (req, res) => {
@@ -188,5 +191,5 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("Elite System Active"));
+server.listen(PORT, () => console.log("System Running - MongoDB Local Storage Mode"));
 module.exports = app;
