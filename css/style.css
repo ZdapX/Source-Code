@@ -1,30 +1,25 @@
 /* 
-    ELITE TECH LAB - CORE STYLESHEET v2.5
-    Designed by Senior UI/UX Engineer
-    Theme: Cyber-Minimalism (Black & Red)
+    CORE STYLE: HIGH-END CYBER-MINIMALISM (ELITE REPOSITORY)
+    Color: #000000 (Black), #FF0000 (Pure Red), #18181b (Zinc)
+    Typography: Space Grotesk & JetBrains Mono
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-    /* Color Palette */
     --bg: #000000;
     --accent: #FF0000;
     --zinc-900: #09090b;
     --zinc-800: #18181b;
     --zinc-700: #27272a;
     --zinc-400: #a1a1aa;
-    --glass: rgba(9, 9, 11, 0.8);
-    
-    /* Fonts */
+    --glass: rgba(9, 9, 11, 0.85);
     --font-ui: 'Space Grotesk', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
-    
-    /* Transitions */
     --ease: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* 1. Reset & Base */
+/* 1. RESET & GLOBAL PREVENTIONS */
 * {
     margin: 0;
     padding: 0;
@@ -36,29 +31,40 @@ html, body {
     background-color: var(--bg);
     color: white;
     font-family: var(--font-ui);
-    overflow-x: hidden; /* Mencegah scroll ke samping */
+    overflow-x: hidden; /* Anti bocor ke samping */
     width: 100%;
 }
 
-/* 2. Typography */
-h1 { font-weight: 700; font-size: clamp(2rem, 8vw, 3.5rem); letter-spacing: -0.05em; line-height: 1.1; }
+/* 2. TYPOGRAPHY HIERARCHY */
+h1 { 
+    font-weight: 700; 
+    font-size: clamp(2.5rem, 8vw, 4rem); 
+    letter-spacing: -0.05em; 
+    line-height: 1; 
+    margin-bottom: 0.5rem;
+}
 h2 { font-weight: 500; font-size: 1.5rem; letter-spacing: -0.02em; }
-.mono { font-family: var(--font-mono); font-size: 0.75rem; color: var(--zinc-400); text-transform: uppercase; letter-spacing: 0.1em; }
-.accent-text { color: var(--accent); }
+.mono { 
+    font-family: var(--font-mono); 
+    font-size: 0.75rem; 
+    color: var(--zinc-400); 
+    text-transform: uppercase; 
+    letter-spacing: 0.15em; 
+}
 
-/* 3. Containers */
+/* 3. CONTAINERS */
 .app-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 6rem 1.5rem 8rem 1.5rem; /* Padding bawah lebih besar untuk Floating Nav */
+    padding: 6rem 1.5rem 10rem 1.5rem;
 }
 
-/* 4. Elite Project Card (Long Horizontal) */
+/* 4. ELITE PROJECT CARD (HORIZONTAL PILL) */
 .project-card {
     background: var(--zinc-900);
     border: 1px solid var(--zinc-800);
-    border-radius: 3rem;
-    padding: 2rem 3rem;
+    border-radius: 3rem; /* Super Rounded corners */
+    padding: 2.2rem 3.5rem;
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
@@ -71,7 +77,7 @@ h2 { font-weight: 500; font-size: 1.5rem; letter-spacing: -0.02em; }
     width: 100%;
 }
 
-/* Hover Slide-in Highlight Bar */
+/* Red Hover Slide-in Highlight */
 .project-card::before {
     content: '';
     position: absolute;
@@ -85,9 +91,9 @@ h2 { font-weight: 500; font-size: 1.5rem; letter-spacing: -0.02em; }
 }
 
 .project-card:hover {
-    transform: scale(1.02);
+    transform: scale(1.03); /* Hover Scale Effect */
     border-color: var(--accent);
-    box-shadow: 0 0 40px rgba(255, 0, 0, 0.1);
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.2); /* Red Glow Fade-in */
     background: #050505;
 }
 
@@ -104,45 +110,46 @@ h2 { font-weight: 500; font-size: 1.5rem; letter-spacing: -0.02em; }
 .card-meta {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.2rem;
 }
 
 .badge {
     background: var(--zinc-800);
     color: var(--accent);
-    padding: 0.2rem 1rem;
-    border: 1px solid transparent;
+    padding: 0.25rem 1.2rem;
     border-radius: 2rem;
     font-family: var(--font-mono);
     font-size: 0.65rem;
+    font-weight: 500;
 }
 
-/* 5. Statistics */
+/* 5. CARD STATISTICS */
 .card-stats {
     display: flex;
-    gap: 2.5rem;
+    gap: 3rem;
     font-family: var(--font-mono);
 }
 
 .stat-group {
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
 }
 
-.stat-label { font-size: 0.6rem; color: var(--zinc-400); text-transform: uppercase; margin-bottom: 2px; }
-.stat-value { font-size: 1rem; color: white; font-weight: 500; }
+.stat-label { font-size: 0.6rem; color: var(--zinc-400); text-transform: uppercase; }
+.stat-value { font-size: 1.1rem; color: white; font-weight: 500; }
 
-/* 6. Buttons & Forms */
+/* 6. BUTTONS & CYBER INPUTS */
 .btn-glow {
     background: var(--accent);
     color: white;
-    border-radius: 3rem;
-    padding: 1.2rem 2.5rem;
+    border-radius: 4rem;
+    padding: 1.3rem 3rem;
     border: none;
     font-family: var(--font-ui);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.2em;
     cursor: pointer;
     transition: all 0.4s var(--ease);
     text-decoration: none;
@@ -151,100 +158,100 @@ h2 { font-weight: 500; font-size: 1.5rem; letter-spacing: -0.02em; }
 }
 
 .btn-glow:hover {
-    box-shadow: 0 0 30px var(--accent);
-    transform: translateY(-2px);
+    box-shadow: 0 0 35px var(--accent);
+    transform: translateY(-3px);
+    color: white;
 }
 
 .cyber-input {
     width: 100%;
     background: var(--zinc-900);
     border: 1px solid var(--zinc-800);
-    border-radius: 1.5rem;
-    padding: 1.2rem 2rem;
+    border-radius: 1.8rem;
+    padding: 1.3rem 2.2rem;
     color: white;
     font-family: var(--font-ui);
     font-size: 1rem;
     outline: none;
-    transition: 0.3s;
+    transition: 0.3s var(--ease);
 }
 
 .cyber-input:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.1);
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.15);
 }
 
-/* 7. Floating Bottom Navigation */
+/* 7. FLOATING NAVIGATION (PILL SHAPE) */
 .nav-floating {
     position: fixed;
-    bottom: 2rem;
+    bottom: 2.5rem;
     left: 50%;
     transform: translateX(-50%);
     background: var(--glass);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.8rem 2rem;
+    padding: 1rem 2.5rem;
     border-radius: 5rem;
     display: flex;
-    gap: 2rem;
+    gap: 3rem;
     z-index: 9999;
     width: max-content;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
 
 .nav-link {
     color: var(--zinc-400);
     text-decoration: none;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.3s ease;
 }
 
 .nav-link:hover, .nav-link.active {
     color: var(--accent);
-    text-shadow: 0 0 10px var(--accent);
+    text-shadow: 0 0 12px var(--accent);
 }
 
-/* 8. Chat & Messenger */
+/* 8. CHAT & MESSAGE BUBBLES */
 #chat-window {
     height: 70vh;
     overflow-y: auto;
-    padding: 2rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
+    padding: 2rem;
 }
 
-.msg-bubble {
-    padding: 1.2rem 2rem;
-    border-radius: 2rem;
-    max-width: 80%;
+.msg-me, .msg-other {
+    padding: 1.5rem 2.2rem;
+    border-radius: 2.5rem;
+    max-width: 75%;
     line-height: 1.6;
-    font-size: 0.95rem;
 }
 
-/* 9. RESPONSIVE ENGINE (FIX UNTUK HP TERPOTONG) */
-@media (max-width: 992px) {
-    .app-container { padding-top: 4rem; }
-    div[style*="grid-template-columns"] { 
-        grid-template-columns: 1fr !important; /* Grid detail project jadi 1 kolom */
+/* 9. THE MOBILE-READY PATCH (NO CROPPING) */
+@media (max-width: 1024px) {
+    /* Detail project: sidebar turun ke bawah */
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
         gap: 3rem !important;
     }
 }
 
 @media (max-width: 768px) {
-    h1 { font-size: 2.5rem; }
+    h1 { font-size: 2.8rem; }
     
     .app-container {
-        padding: 4rem 1rem 8rem 1rem;
+        padding: 5rem 1.2rem 10rem 1.2rem;
     }
 
-    /* Transform Card Horizontal -> Vertikal */
+    /* Transform Card Horizontal ke Vertikal Stack */
     .project-card {
         flex-direction: column;
         align-items: flex-start;
-        padding: 2rem;
-        border-radius: 2rem;
-        gap: 1.5rem;
+        padding: 2.5rem 2rem;
+        border-radius: 2.5rem;
+        gap: 2rem;
     }
 
     .card-stats {
@@ -252,19 +259,23 @@ h2 { font-weight: 500; font-size: 1.5rem; letter-spacing: -0.02em; }
         justify-content: space-between;
         border-top: 1px solid var(--zinc-800);
         padding-top: 1.5rem;
-        gap: 1rem;
+        gap: 0.5rem;
+    }
+
+    .stat-group {
+        align-items: flex-start;
     }
 
     /* Floating Nav Mobile */
     .nav-floating {
         width: 92%;
-        gap: 1.2rem;
-        padding: 0.8rem 1.2rem;
+        gap: 1.5rem;
+        padding: 1rem 1.5rem;
         justify-content: center;
     }
 
     .nav-link {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
     }
 
     /* Sidebar Fix */
@@ -273,34 +284,31 @@ h2 { font-weight: 500; font-size: 1.5rem; letter-spacing: -0.02em; }
         width: 100% !important;
     }
 
-    /* Profile Image Fix */
+    /* Avatar & Profile Fix */
     div[style*="display: flex; align-items: center; gap: 3rem"] {
         flex-direction: column !important;
         text-align: center;
-        gap: 1.5rem !important;
+        gap: 2rem !important;
     }
-
+    
     /* Code Box Fix */
     pre {
-        font-size: 0.75rem !important;
-        padding: 1.5rem !important;
+        font-size: 0.8rem !important;
+        padding: 2rem 1.5rem !important;
     }
 }
 
 @media (max-width: 480px) {
-    h1 { font-size: 2rem; }
-    .project-card { padding: 1.5rem; }
-    .card-stats { flex-wrap: wrap; }
-    .stat-group { flex: 1 1 40%; }
+    h1 { font-size: 2.2rem; }
+    .project-card { padding: 2rem 1.5rem; }
+    .stat-value { font-size: 0.9rem; }
 }
 
-/* 10. Utilities */
-.hidden { display: none; }
-pre {
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent) var(--zinc-900);
-}
-::-webkit-scrollbar { width: 6px; }
+/* 10. CUSTOM SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--zinc-800); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* Utilities */
+.hidden { display: none; }
