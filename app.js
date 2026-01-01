@@ -27,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const MONGO_URI = "mongodb+srv://braynofficial66_db_user:Oh2ivMc2GGP0SbJF@cluster0.zi2ra3a.mongodb.net/website_db?retryWrites=true&w=majority&appName=Cluster0";
 
+// KONFIGURASI CLOUDINARY
 cloudinary.config({
   cloud_name: 'dnb0q2s2h',
   api_key: '838368993294916',
@@ -34,7 +35,7 @@ cloudinary.config({
 });
 
 app.use(session({
-  secret: 'brayn_elite_secure_v3',
+  secret: 'brayn_elite_final_secure',
   resave: false,
   saveUninitialized: true,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
@@ -45,22 +46,17 @@ mongoose.connect(MONGO_URI).then(() => {
     seedAdmins();
 });
 
-// ==========================================
-// FIX: KONFIGURASI STORAGE AGAR EKSTENSI AWET
-// ==========================================
+// STORAGE CONFIG - MENGAMBIL EKSTENSI ASLI
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    // Ambil ekstensi asli (misal: .zip, .html, .py)
-    const ext = path.extname(file.originalname); 
-    // Ambil nama tanpa ekstensi
+    const ext = path.extname(file.originalname).toLowerCase(); 
     const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '_').toLowerCase();
     
     return {
       folder: 'website_source_code',
-      resource_type: 'auto', // Mendukung zip, rar, py, html
-      // Public ID harus menyertakan ekstensi agar link Cloudinary punya .zip di ujungnya
-      public_id: `${baseName}-${Date.now()}${ext}`, 
+      resource_type: 'auto', // OTOMATIS mendeteksi zip, rar, html, py
+      public_id: `${baseName}-${Date.now()}${ext}`, // MENYIMPAN DENGAN EKSTENSI
     };
   },
 });
@@ -78,7 +74,7 @@ async function seedAdmins() {
 
 const isAdmin = (req, res, next) => { if (req.session.adminId) return next(); res.redirect('/login'); };
 
-// --- ELITE ROUTES ---
+// --- ROUTES ---
 
 app.get('/', async (req, res) => {
   const { search } = req.query;
@@ -92,21 +88,25 @@ app.get('/project/:id', async (req, res) => {
   res.render('project-detail', { project });
 });
 
-// ==========================================
-// FIX: ROUTE DOWNLOAD (SIMPLE & RELIABLE)
-// ==========================================
+/**
+ * FIX 401 & NO EXTENSION: 
+ * Menggunakan teknik download paksa Cloudinary
+ */
 app.get('/project/:id/download-hit', async (req, res) => {
     try {
         const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } }, { new: true });
         if (!project) return res.redirect('/');
 
         if (project.type === 'file') {
-            // Karena upload sudah kita perbaiki, 
-            // project.content akan berisi URL yang sudah ada ekstensinya (.zip/.html)
-            // Jadi kita cukup redirect saja, browser akan langsung mengenalinya.
-            res.redirect(project.content);
+            const fileUrl = project.content;
+            
+            // Generate URL download yang memaksa download (attachment mode)
+            // Ini akan mengganti '/upload/' menjadi '/upload/fl_attachment/'
+            // Dan memastikan tidak kena 401 karena formatnya 'clean'
+            const downloadUrl = fileUrl.replace('/upload/', '/upload/fl_attachment/');
+            
+            res.redirect(downloadUrl);
         } else {
-            // Jika tipe CODE, kirim sebagai .txt
             const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
             res.setHeader('Content-Disposition', `attachment; filename="${safeName}.txt"`);
             res.send(project.content);
@@ -133,10 +133,8 @@ app.post('/admin/upload', isAdmin, upload.fields([{name:'projectFile'}, {name:'p
   try {
     const { name, language, type, projectCode, note } = req.body;
     let content = type === 'file' ? (req.files['projectFile'] ? req.files['projectFile'][0].path : "") : projectCode;
-    
-    if (!content) return res.send("<script>alert('Gagal: Content kosong!'); window.history.back();</script>");
-    
     let preview = (req.files['previewImg'] && req.files['previewImg'][0]) ? req.files['previewImg'][0].path : "";
+    
     await Project.create({ 
         name, language, type, content, note, preview, 
         uploadedBy: req.session.username 
