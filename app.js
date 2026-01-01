@@ -6,10 +6,11 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const http = require('http');
+const https = require('https'); // Digunakan untuk streaming file
 const { Server } = require('socket.io');
 const path = require('path');
 
-// Import Models
+// --- IMPORT MODELS ---
 const Project = require('./models/Project');
 const Admin = require('./models/Admin');
 const Message = require('./models/Message');
@@ -34,7 +35,7 @@ cloudinary.config({
 });
 
 app.use(session({
-  secret: 'brayn_elite_2024',
+  secret: 'brayn_elite_2026_secure',
   resave: false,
   saveUninitialized: true,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
@@ -44,7 +45,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => { console.log("Elite Database Connected"); seedAdmins(); })
   .catch(err => console.log(err));
 
-// Multer Storage - Resource Type 'auto' is MANDATORY for zips
+// Multer Storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -66,7 +67,7 @@ async function seedAdmins() {
 
 const isAdmin = (req, res, next) => { if (req.session.adminId) return next(); res.redirect('/login'); };
 
-// --- ROUTES ---
+// --- ELITE ROUTES ---
 
 app.get('/', async (req, res) => {
   const { search } = req.query;
@@ -80,33 +81,42 @@ app.get('/project/:id', async (req, res) => {
   res.render('project-detail', { project });
 });
 
-// FIX DOWNLOAD LOGIC
+/**
+ * ULTIMATE DOWNLOAD FIX (PROXY STREAMING)
+ * Ini akan memperbaiki masalah nama file acak dan error 400
+ */
 app.get('/project/:id/download-hit', async (req, res) => {
-  try {
-    const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } }, { new: true });
-    if (!project) return res.redirect('/');
+    try {
+        const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } }, { new: true });
+        if (!project) return res.redirect('/');
 
-    if (project.type === 'file') {
-      const fileUrl = project.content;
-      // Ambil ekstensi asli (zip, rar, py, dll) dari URL Cloudinary
-      const extension = fileUrl.split('.').pop().split('?')[0]; 
-      // Buat nama file aman
-      const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      const fullName = `${safeName}.${extension}`;
+        const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
-      /**
-       * ULTIMATE FIX: 
-       * Cloudinary butuh flag fl_attachment dengan nama file lengkap + ekstensi.
-       */
-      let downloadUrl = fileUrl.replace('/upload/', `/upload/fl_attachment:${fullName}/`);
-      
-      res.redirect(downloadUrl);
-    } else {
-      const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      res.setHeader('Content-Disposition', `attachment; filename=${safeName}.txt`);
-      res.send(project.content);
+        if (project.type === 'file') {
+            const fileUrl = project.content;
+            // Ambil ekstensi asli dari URL Cloudinary
+            const extension = fileUrl.split('.').pop().split('?')[0]; 
+            const fileName = `${safeName}.${extension}`;
+
+            // Set Header agar browser mengenali ini sebagai download file dengan nama yang benar
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+            // Ambil file dari Cloudinary dan alirkan (pipe) langsung ke user
+            https.get(fileUrl, (cloudRes) => {
+                cloudRes.pipe(res);
+            }).on('error', (err) => {
+                res.redirect(fileUrl); // Fallback ke link asli jika streaming gagal
+            });
+            
+        } else {
+            // Jika tipe CODE, kirim sebagai .txt
+            res.setHeader('Content-Disposition', `attachment; filename="${safeName}.txt"`);
+            res.setHeader('Content-Type', 'text/plain');
+            res.send(project.content);
+        }
+    } catch (e) {
+        res.redirect('back');
     }
-  } catch (e) { res.redirect('back'); }
 });
 
 app.post('/project/:id/like', async (req, res) => {
@@ -125,7 +135,7 @@ app.get('/admin/upload', isAdmin, (req, res) => res.render('admin-upload'));
 app.post('/admin/upload', isAdmin, upload.fields([{name:'projectFile'}, {name:'previewImg'}]), async (req, res) => {
   const { name, language, type, projectCode, note } = req.body;
   let content = type === 'file' ? (req.files['projectFile'] ? req.files['projectFile'][0].path : "") : projectCode;
-  let preview = req.files['previewImg'] ? req.files['previewImg'][0].path : "";
+  let preview = (req.files['previewImg'] && req.files['previewImg'][0]) ? req.files['previewImg'][0].path : "";
   await Project.create({ name, language, type, content, note, preview, uploadedBy: req.session.username });
   res.redirect('/admin/manage');
 });
@@ -140,7 +150,6 @@ app.get('/admin/delete/:id', isAdmin, async (req, res) => {
   res.redirect('/admin/manage');
 });
 
-// Chat & Profile logic... (sama seperti sebelumnya)
 app.get('/profile', async (req, res) => { res.render('profile', { admins: await Admin.find() }); });
 app.get('/chat-pilih', (req, res) => res.render('chat-pilih'));
 app.get('/chat/:adminTarget', async (req, res) => {
@@ -156,5 +165,5 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("System Active"));
+server.listen(PORT, () => console.log("Elite System Active"));
 module.exports = app;
