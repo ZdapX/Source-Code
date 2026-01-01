@@ -9,7 +9,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 
-// --- IMPORT MODELS ---
+// --- IMPORT MODELS (Pastikan folder models/ sudah ada) ---
 const Project = require('./models/Project');
 const Admin = require('./models/Admin');
 const Message = require('./models/Message');
@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- KREDENSIAL (HARDCODED SESUAI PERMINTAAN) ---
+// --- KREDENSIAL DATABASE & CLOUDINARY ---
 const MONGO_URI = "mongodb+srv://braynofficial66_db_user:Oh2ivMc2GGP0SbJF@cluster0.zi2ra3a.mongodb.net/website_db?retryWrites=true&w=majority&appName=Cluster0";
 
 cloudinary.config({
@@ -34,39 +34,39 @@ cloudinary.config({
   api_secret: 'N9U1eFJGKjJ-A8Eo4BTtSCl720c'
 });
 
-// --- SESSION ---
+// --- SESSION CONFIG ---
 app.use(session({
-  secret: 'brayn_official_secret_key',
+  secret: 'brayn_elite_secret_2024',
   resave: false,
   saveUninitialized: true,
   cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 Hari
 }));
 
-// --- KONEKSI DATABASE ---
+// --- DATABASE CONNECTION ---
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.log("Connected to MongoDB Atlas");
+    console.log("Elite Database Connected");
     seedAdmins();
   })
-  .catch(err => console.log("Database Error: ", err));
+  .catch(err => console.log("DB Error: ", err));
 
-// --- MULTER & CLOUDINARY STORAGE ---
+// --- MULTER STORAGE ENGINE (AUTO RESOURCE TYPE) ---
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'website_source_code',
-    resource_type: 'auto'
+    resource_type: 'auto', // WAJIB agar bisa upload zip, rar, py, dll
   },
 });
 const upload = multer({ storage: storage });
 
-// --- MIDDLEWARE CEK ADMIN ---
+// --- MIDDLEWARE AUTH ---
 const isAdmin = (req, res, next) => {
   if (req.session.adminId) return next();
   res.redirect('/login');
 };
 
-// --- FUNGSI SEED ADMIN (DIBUAT OTOMATIS JIKA DB KOSONG) ---
+// --- SEED INITIAL ADMINS ---
 async function seedAdmins() {
   try {
     const count = await Admin.countDocuments();
@@ -76,7 +76,7 @@ async function seedAdmins() {
           username: 'Silverhold', 
           pass: 'Rian', 
           name: 'SilverHold Official', 
-          quote: 'Jangan lupa sholat walaupun kamu seorang pendosa allah lebih suka orang pendosa yang sering bertaubat dari pada orang yang merasa suci', 
+          quote: 'Jangan lupa sholat walaupun kamu seorang pendosa...', 
           hashtag: '#bismillahcalonustad', 
           profilePic: '' 
         },
@@ -85,34 +85,73 @@ async function seedAdmins() {
           pass: 'Plerr321', 
           name: 'Brayn Official', 
           quote: 'Tidak Semua Orang Suka Kita Berkembang Pesat!', 
-          hashtag: '#backenddev #frontenddev #BraynOfficial', 
+          hashtag: '#backenddev #frontenddev', 
           profilePic: '' 
         }
       ]);
-      console.log("Admin accounts created!");
+      console.log("Admin accounts established.");
     }
   } catch (err) { console.log(err); }
 }
 
-// --- ROUTES ---
+// --- PUBLIC ROUTES ---
 
-// 1. HOME
 app.get('/', async (req, res) => {
   try {
     const { search } = req.query;
     let query = search ? { name: { $regex: search, $options: 'i' } } : {};
     const projects = await Project.find(query).sort({ createdAt: -1 });
     res.render('home', { projects });
-  } catch (err) { res.status(500).send("Error"); }
+  } catch (err) { res.status(500).send("Core Error"); }
 });
 
-// 2. PROFILE ADMIN (PUBLIC)
 app.get('/profile', async (req, res) => {
   const admins = await Admin.find();
   res.render('profile', { admins });
 });
 
-// 3. LOGIN ADMIN
+app.get('/project/:id', async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if(!project) return res.redirect('/');
+    res.render('project-detail', { project });
+  } catch (err) { res.redirect('/'); }
+});
+
+// LIKE API (MODERN)
+app.post('/project/:id/like', async (req, res) => {
+  try {
+    const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { likes: 1 } }, { new: true });
+    res.json({ success: true, totalLikes: project.likes });
+  } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// DOWNLOAD HANDLER (FIX FILENAME & EXTENSION)
+app.get('/project/:id/download-hit', async (req, res) => {
+  try {
+    const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } }, { new: true });
+    if (!project) return res.redirect('/');
+
+    const safeName = project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+    if (project.type === 'file') {
+      let fileUrl = project.content;
+      // Inject fl_attachment ke URL Cloudinary agar nama file sesuai saat didownload
+      let downloadUrl = fileUrl.includes('/upload/') 
+        ? fileUrl.replace('/upload/', `/upload/fl_attachment:${safeName}/`) 
+        : fileUrl;
+      res.redirect(downloadUrl);
+    } else {
+      // Jika tipe code, download sebagai .txt
+      res.setHeader('Content-Disposition', `attachment; filename=${safeName}.txt`);
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(project.content);
+    }
+  } catch (e) { res.redirect('back'); }
+});
+
+// --- ADMIN AUTH ROUTES ---
+
 app.get('/login', (req, res) => res.render('login'));
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
@@ -122,42 +161,25 @@ app.post('/login', async (req, res) => {
     req.session.username = admin.username;
     res.redirect('/admin/upload');
   } else {
-    res.send("<script>alert('Login Gagal!'); window.location='/login';</script>");
+    res.send("<script>alert('Unauthorized Access!'); window.location='/login';</script>");
   }
 });
 
-// 4. LOGOUT
 app.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/');
 });
 
-// 5. DETAIL PROJECT & LIKE/DOWNLOAD
-app.get('/project/:id', async (req, res) => {
-  try {
-    const project = await Project.findById(req.params.id);
-    res.render('project-detail', { project });
-  } catch (err) { res.redirect('/'); }
-});
+// --- ADMIN MANAGEMENT ROUTES ---
 
-app.post('/project/:id/like', async (req, res) => {
-  const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { likes: 1 } }, { new: true });
-  res.json({ success: true, totalLikes: project.likes });
-});
-
-app.get('/project/:id/download-hit', async (req, res) => {
-  const project = await Project.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } });
-  res.redirect(project.content);
-});
-
-// 6. ADMIN - UPLOAD PROJECT
 app.get('/admin/upload', isAdmin, (req, res) => res.render('admin-upload'));
+
 app.post('/admin/upload', isAdmin, upload.fields([{ name: 'projectFile' }, { name: 'previewImg' }]), async (req, res) => {
   try {
     const { name, language, type, projectCode, note } = req.body;
     let content = type === 'file' ? (req.files['projectFile'] ? req.files['projectFile'][0].path : "") : projectCode;
     
-    if (!content) return res.send("<script>alert('Isi konten kosong!'); window.history.back();</script>");
+    if (!content) return res.send("<script>alert('Data Incomplete!'); window.history.back();</script>");
     
     let preview = (req.files['previewImg'] && req.files['previewImg'][0]) ? req.files['previewImg'][0].path : "";
 
@@ -169,7 +191,6 @@ app.post('/admin/upload', isAdmin, upload.fields([{ name: 'projectFile' }, { nam
   } catch (err) { res.status(500).send(err.message); }
 });
 
-// 7. ADMIN - MANAGE PROJECTS (LIST & DELETE)
 app.get('/admin/manage', isAdmin, async (req, res) => {
   const projects = await Project.find({ uploadedBy: req.session.username }).sort({ createdAt: -1 });
   res.render('admin-manage', { projects, adminName: req.session.username });
@@ -180,7 +201,6 @@ app.get('/admin/delete/:id', isAdmin, async (req, res) => {
   res.redirect('/admin/manage');
 });
 
-// 8. ADMIN - EDIT PROFILE
 app.get('/admin/edit-profile', isAdmin, async (req, res) => {
   const admin = await Admin.findById(req.session.adminId);
   res.render('admin-edit', { admin });
@@ -197,15 +217,16 @@ app.post('/admin/edit-profile', isAdmin, upload.single('profilePic'), async (req
       if (admin.pass === oldPassword) {
         updateData.pass = newPassword;
       } else {
-        return res.send("<script>alert('Password lama salah!'); window.history.back();</script>");
+        return res.send("<script>alert('Invalid Old Password!'); window.history.back();</script>");
       }
     }
     await Admin.findByIdAndUpdate(req.session.adminId, updateData);
     res.redirect('/profile');
-  } catch (err) { res.send("Error Update"); }
+  } catch (err) { res.send("Update Protocol Failed"); }
 });
 
-// 9. CHAT SYSTEM (PILIH ADMIN & ROOM)
+// --- CHAT SYSTEM ---
+
 app.get('/chat-pilih', (req, res) => res.render('chat-pilih'));
 
 app.get('/chat/:adminTarget', async (req, res) => {
@@ -218,21 +239,20 @@ app.get('/chat/:adminTarget', async (req, res) => {
   });
 });
 
-// --- SOCKET.IO LOGIC ---
+// --- SOCKET.IO REALTIME COMMS ---
 io.on('connection', (socket) => {
   socket.on('chat message', async (data) => {
     try {
-      // data berisi: { user, text, to, isAdmin }
       const msg = await Message.create(data);
-      io.emit('chat message', msg); // Broadcast ke semua
-    } catch (e) { console.log(e); }
+      io.emit('chat message', msg);
+    } catch (e) { console.log("Socket Error"); }
   });
 });
 
-// --- SERVER LISTEN ---
+// --- SERVER INITIALIZATION ---
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`System active on port ${PORT}`);
 });
 
 module.exports = app;
