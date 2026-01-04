@@ -2,67 +2,210 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= project.name %> // Elite Repository</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORE_DATA // <%= project.name %></title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* --- UPGRADE: ELITE TERMINAL VIEWPORT --- */
+        .terminal-container {
+            background: #050505;
+            border: 1px solid var(--zinc-800);
+            border-radius: 2.5rem;
+            margin-top: 2rem;
+            overflow: hidden; /* Memastikan isi tidak keluar dari border-radius */
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* Header Terminal (Seperti Jendela Aplikasi) */
+        .terminal-header {
+            background: var(--zinc-900);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--zinc-800);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--zinc-700);
+        }
+
+        /* Viewport Utama (Tempat Kodingan) */
+        .code-viewport {
+            height: 500px; /* Tinggi tetap agar tidak menutupi layout lain */
+            overflow: auto; /* Scroll aktif di dalam box */
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        /* Styling Scrollbar Internal untuk Terminal */
+        .code-viewport::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .code-viewport::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .code-viewport::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        pre code {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #eee;
+            white-space: pre; /* Menjaga format spasi kodingan */
+        }
+
+        /* Efek Line Numbers (Optional Visual) */
+        .code-viewport {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 1.7rem; /* Menyesuaikan dengan line-height */
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
-        <header style="margin-bottom: 4rem;">
-            <a href="/" class="nav-link" style="margin-bottom: 2rem; display: block;">[ ← BACK_TO_DATABASE ]</a>
-            <span class="badge" style="margin-bottom: 1rem;"><%= project.language %> // <%= project.type.toUpperCase() %></span>
-            <h1><%= project.name %></h1>
-        </header>
+        <!-- Back Navigation -->
+        <div style="margin-bottom: 3rem;">
+            <a href="/" class="nav-link" style="display: inline-flex; align-items: center; gap: 0.8rem;">
+                <span class="mono">[ ← BACK_TO_DATABASE ]</span>
+            </a>
+        </div>
 
+        <!-- Project Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; gap: 2rem; flex-wrap: wrap;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
+                    <span class="badge"><%= project.language %></span>
+                    <span class="badge" style="background: transparent; border: 1px solid var(--accent); opacity: 0.7;"><%= project.type.toUpperCase() %></span>
+                </div>
+                <h1><%= project.name %></h1>
+            </div>
+            <div style="text-align: right;">
+                <p class="stat-label">System Operator</p>
+                <p class="stat-value" style="color: var(--accent);"><%= project.uploadedBy %></p>
+            </div>
+        </div>
+
+        <!-- Layout Grid -->
         <div style="display: grid; grid-template-columns: 1fr 350px; gap: 4rem;">
+            
             <div class="main-content">
+                <!-- Preview Project -->
                 <% if(project.preview) { %>
-                    <div style="border-radius: 3rem; overflow: hidden; border: 1px solid var(--zinc-800); margin-bottom: 3rem;">
-                        <img src="<%= project.preview %>" style="width: 100%; display: block;">
+                    <div style="border-radius: 3rem; overflow: hidden; border: 1px solid var(--zinc-800); margin-bottom: 3rem; background: var(--zinc-900);">
+                        <img src="<%= project.preview %>" style="width: 100%; display: block; filter: brightness(0.8);">
                     </div>
                 <% } %>
-                
-                <div style="background: var(--zinc-900); padding: 3rem; border-radius: 3rem; border: 1px solid var(--zinc-800); margin-bottom: 3rem;">
-                    <p class="mono" style="color: var(--accent); margin-bottom: 1rem;">[ DOCUMENTATION ]</p>
-                    <p><%= project.note || "No documentation." %></p>
+
+                <!-- Notes / Documentation -->
+                <div style="background: var(--zinc-900); padding: 2.5rem; border-radius: 3rem; border: 1px solid var(--zinc-800); margin-bottom: 3rem;">
+                    <p class="mono" style="color: var(--accent); margin-bottom: 1rem;">[ TECHNICAL_NOTES ]</p>
+                    <p style="color: var(--zinc-400); font-size: 1.1rem; line-height: 1.7;">
+                        <%= project.note || "No technical documentation provided for this asset." %>
+                    </p>
                 </div>
 
+                <!-- UPGRADED CODE VIEWPORT -->
                 <% if(project.type === 'code') { %>
-                    <div style="background: #050505; border: 1px solid var(--zinc-800); border-radius: 2rem; padding: 2.5rem; font-family: var(--font-mono); overflow-x: auto;">
-                        <pre><code id="pCode"><%= project.content %></code></pre>
+                    <div class="terminal-container">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <div class="terminal-dot"></div>
+                                <div class="terminal-dot"></div>
+                                <div class="terminal-dot" style="background: var(--accent);"></div>
+                            </div>
+                            <span class="mono" style="font-size: 0.65rem; opacity: 0.5;">SOURCE_STREAM.log</span>
+                        </div>
+                        <div class="code-viewport">
+                            <pre><code id="sourceCode"><%= project.content %></code></pre>
+                        </div>
                     </div>
+                    <p class="mono" style="margin-top: 1.5rem; text-align: center; font-size: 0.6rem;">SCROLL_INSIDE_TO_VIEW_FULL_CODE</p>
                 <% } %>
             </div>
 
+            <!-- Sidebar Actions -->
             <div class="sidebar">
                 <div style="background: var(--zinc-900); border: 1px solid var(--zinc-800); border-radius: 3.5rem; padding: 3rem; position: sticky; top: 2rem;">
-                    <div style="margin-bottom: 2rem;">
-                        <p class="stat-label">Likes</p>
-                        <p class="stat-value" id="likeCount" style="font-size: 2.5rem;"><%= project.likes %></p>
+                    <div style="margin-bottom: 2.5rem;">
+                        <p class="stat-label">Engagement Resonance</p>
+                        <p class="stat-value" id="like-total" style="font-size: 3rem;"><%= project.likes %></p>
                     </div>
-                    
-                    <% if(project.type === 'file') { %>
-                        <a href="/project/<%= project._id %>/download-hit" class="btn-glow" style="width: 100%; display: block; text-decoration: none;">DOWNLOAD_ZIP</a>
-                    <% } else { %>
-                        <button class="btn-glow" style="width: 100%;" onclick="copyCode()">COPY_SOURCE</button>
-                    <% } %>
-                    
-                    <button class="cyber-input" style="margin-top: 1rem; text-align: center; cursor: pointer;" onclick="like()">RESONATE_LIKE</button>
+
+                    <div style="margin-bottom: 2.5rem;">
+                        <p class="stat-label">Total Downloads</p>
+                        <p class="stat-value" style="font-size: 1.5rem;"><%= project.downloads %></p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <% if(project.type === 'file') { %>
+                            <a href="/project/<%= project._id %>/download-hit" class="btn-glow" style="text-decoration: none;">
+                                INITIALIZE_DOWNLOAD
+                            </a>
+                        <% } else { %>
+                            <button class="btn-glow" id="copyBtn" onclick="copyProtocol()">
+                                COPY_SOURCE_CODE
+                            </button>
+                        <% } %>
+
+                        <button class="cyber-input" style="cursor: pointer; text-align: center;" onclick="resonateLike()">
+                            RESONATE_LIKE
+                        </button>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 
+    <nav class="nav-floating">
+        <a href="/" class="nav-link">EXIT_CORE</a>
+    </nav>
+
     <script>
-        async function like() {
-            const res = await fetch('/project/<%= project._id %>/like', {method:'POST'});
-            const data = await res.json();
-            if(data.success) document.getElementById('likeCount').innerText = data.totalLikes;
+        // Like Function
+        async function resonateLike() {
+            try {
+                const res = await fetch('/project/<%= project._id %>/like', { method: 'POST' });
+                const data = await res.json();
+                if(data.success) {
+                    const el = document.getElementById('like-total');
+                    el.innerText = data.totalLikes;
+                    el.style.color = 'var(--accent)';
+                    setTimeout(() => el.style.color = 'white', 500);
+                }
+            } catch (e) { console.error("Comms link failed."); }
         }
-        function copyCode() {
-            const c = document.getElementById('pCode').innerText;
-            navigator.clipboard.writeText(c);
-            alert("Copied to buffer!");
+
+        // Copy Function
+        function copyProtocol() {
+            const code = document.getElementById('sourceCode').innerText;
+            const btn = document.getElementById('copyBtn');
+            navigator.clipboard.writeText(code).then(() => {
+                const original = btn.innerText;
+                btn.innerText = "COPIED_TO_BUFFER!";
+                btn.style.background = "white";
+                btn.style.color = "black";
+                setTimeout(() => {
+                    btn.innerText = original;
+                    btn.style.background = "var(--accent)";
+                    btn.style.color = "white";
+                }, 2000);
+            });
         }
     </script>
 </body>
